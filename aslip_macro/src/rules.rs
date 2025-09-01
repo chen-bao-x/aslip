@@ -1,12 +1,13 @@
+#[allow(warnings)]
+#[allow(dead_code)]
+
 // 1. cmd action 不能用返回值。
 // 2. 只有最后一个参数可以是 数组这样的集合类型。
 
 use std::path::PathBuf;
 
-use syn::ReturnType;
-
 /// rule 1 cmd action 不能用返回值。
-pub fn rule_1(input: syn::ItemFn) -> Option<syn::Error> {
+pub fn rule_w1(input: syn::ItemFn) -> Option<syn::Error> {
     // 检查返回值
     if let syn::ReturnType::Type(_, ty) = &input.sig.output {
         // 有返回值 → 报错

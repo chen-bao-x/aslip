@@ -1,12 +1,13 @@
-use proc_macro::TokenStream;
+
 use quote::quote;
-use syn::{
-    Attribute, FnArg, Ident, ItemFn, Lit, Pat, Type, meta::ParseNestedMeta, parse_macro_input,
-};
+use syn::ItemFn;
 
 use crate::FnArgInfo;
 
 extern crate proc_macro;
+
+// 实例化插件注册表
+inventory::collect!(FnInfo);
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct FnInfo {
@@ -24,7 +25,7 @@ impl FnInfo {
         let mut args = Vec::<FnArgInfo>::new();
         {
             for arg in &fn_item.sig.inputs {
-                let f = FnArgInfo::new(arg.clone()).unwrap();
+                let f = FnArgInfo::new(arg.clone()).expect(concat!(file!(), line!()));
                 args.push(f);
             }
         }
@@ -39,7 +40,7 @@ impl FnInfo {
         }
     }
 
-    // fn get_doc_comments(tokens: TokenStream) -> Vec<String> {
+    /// 获取函数的文档注释。
     pub fn get_doc_comments(item_fn: ItemFn) -> Vec<String> {
         item_fn
             .attrs
@@ -66,15 +67,28 @@ impl FnInfo {
     }
 
     pub fn gen_case_code(&self) -> String {
+        let mut variables: Vec<String> = vec![];
+        let mut codes: Vec<String> = vec![];
+        for index in 0..self.func_args.len() {
+            let arg = self.func_args.get(index).expect(concat!(file!(), line!()));
+            let re = arg.gen_code(index);
+
+            variables.push(re.0);
+            codes.push(re.1);
+        }
+
         format!(
             r###"
     "{func_name}" => 
             {{
+        {args_geter}
 
-        {func_name}();
+        {func_name}({args});
         }}  ,
         "###,
             func_name = self.func_name,
+            args_geter = codes.join("\n"),
+            args = variables.join(","),
         )
     }
 }

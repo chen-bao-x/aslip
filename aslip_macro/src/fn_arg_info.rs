@@ -1,17 +1,16 @@
 // lib.rs
 
-use proc_macro::TokenStream;
 use quote::quote;
-use syn::{
-    Attribute, FnArg, Ident, ItemFn, Lit, Pat, Type, meta::ParseNestedMeta, parse_macro_input,
-};
+use syn::FnArg;
+use syn::Ident;
+use syn::Pat;
 
 extern crate proc_macro;
 
-#[derive(Debug, PartialEq, Eq,Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct FnArgInfo {
-    name: String,
-    _type: String,
+    arg_name: String,
+    type_name: String,
     fn_arg_doc: Vec<String>,
 }
 
@@ -29,13 +28,14 @@ impl FnArgInfo {
 
             // 提取参数类型
             let arg_type = &pat_type.ty;
+            // panic!("arg_type: {}",  quote!(#arg_type));
 
             // 打印参数信息（编译期输出）
-            println!(
-                "参数名称: {}, 参数类型: {}",
-                arg_name,
-                quote!(#arg_type) // 将类型转换为字符串
-            );
+            // println!(
+            //     "参数名称: {}, 参数类型: {}",
+            //     arg_name,
+            //     quote!(#arg_type) // 将类型转换为字符串
+            // );
 
             let doc = pat_type
                 .attrs
@@ -57,12 +57,48 @@ impl FnArgInfo {
                 .collect::<Vec<String>>();
 
             return Some(FnArgInfo {
-                name: arg_name.to_string(),
-                _type: quote!(#arg_type).to_string(),
+                arg_name: arg_name.to_string(),
+                type_name: quote!(#arg_type)
+                    .to_string()
+                    .trim_matches(|x| x == ' ')
+                    .to_string(),
                 fn_arg_doc: doc,
             });
         }
 
         return None;
+    }
+
+    /// returns.0 -> auto_name
+    /// returns.1 -> the let expr.
+    pub fn gen_code(&self, index: usize) -> (String, String) {
+        let auto_name = self.auto_name(index);
+        let _converted = auto_name.clone() + "_converted";
+
+        let get_arg_code = format!(
+            "let {} = app._user_inputed_cmd_args.get({}).unwrap().clone();",
+            auto_name, index,
+        );
+
+        let convert_right_sede_code = self.type_convert(&self.type_name, &auto_name);
+
+        let type_convert_code = format!(
+            "let {}: {} = {};",
+            _converted, self.type_name, convert_right_sede_code,
+        );
+
+        return (_converted.clone(), get_arg_code + "\n" + &type_convert_code);
+    }
+
+    fn type_convert(&self, ty_name: &str, cmd_arg_variable_name: &str) -> String {
+        format!(
+            "<{} as ::core::str::FromStr>::from_str(&{}).unwrap().clone()",
+            ty_name, cmd_arg_variable_name
+        )
+    }
+
+    fn auto_name(&self, index: usize) -> String {
+        // format!("arg_{}_{}", index, self.type_name.to_lowercase())
+        format!("__arg_{}__", index,)
     }
 }
