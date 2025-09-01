@@ -8,11 +8,11 @@ use crate::FnArgInfo;
 
 extern crate proc_macro;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct FnInfo {
-    func_name: String,
-    func_args: Vec<FnArgInfo>,
-    func_doc_comments: Vec<String>,
+    pub func_name: String,
+    pub func_args: Vec<FnArgInfo>,
+    pub func_doc_comments: Vec<String>,
 }
 
 impl FnInfo {
@@ -63,5 +63,18 @@ impl FnInfo {
                 }
             })
             .collect()
+    }
+
+    pub fn gen_case_code(&self) -> String {
+        format!(
+            r###"
+    "{func_name}" => 
+            {{
+
+        {func_name}();
+        }}  ,
+        "###,
+            func_name = self.func_name,
+        )
     }
 }

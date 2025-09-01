@@ -8,7 +8,7 @@ use syn::{
 
 extern crate proc_macro;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq,Clone)]
 pub struct FnArgInfo {
     name: String,
     _type: String,

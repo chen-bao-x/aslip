@@ -1,3 +1,5 @@
+// aslip
+pub use ascp_macro;
 pub use ascp_macro::command;
 pub use ascp_macro::run;
 
@@ -9,12 +11,3 @@ use crate::app::App;
 pub fn run() {
     App::new("").run();
 }
-
-// macro_rules!  {
-//     () => {
-
-//     };
-// }
-
-#[command]
-fn adsf() {}
