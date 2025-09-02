@@ -30,16 +30,28 @@ impl<const START: isize, const END: isize> ::core::str::FromStr for NumberInRang
     }
 }
 
-// impl<T> core::str::FromStr for Box<T>
-// where
-//     T: core::str::FromStr,
-// {
-//     type Err = <T as core::str::FromStr>::Err;
+impl<const START: isize, const END: isize> crate::from_arg_sttr::FromArgStr
+    for NumberInRange<START, END>
+{
+    type Err = ParseNumberInRangeError;
 
-//     fn from_str(s: &str) -> Result<Self, Self::Err> {
-//         T::from_str(s).map(|x| Box::new(x))
-//     }
-// }
+    fn from_arg_str(s: &str) -> Result<Self, Self::Err> {
+        let re =
+            <f64 as ::core::str::FromStr>::from_str(s).map_err(|_| ParseNumberInRangeError {})?;
+
+        let s = START as f64;
+        let e = END as f64;
+
+        if re >= s && re <= e {
+            // ok
+
+            return Ok(Self { value: re });
+        } else {
+            // err
+            return Err(ParseNumberInRangeError {});
+        }
+    }
+}
 
 pub use String;
 pub use bool;

@@ -24,15 +24,56 @@ pub fn command(_args: TokenStream, input: TokenStream) -> TokenStream {
     // 解析输入的函数
     let func = parse_macro_input!(input as ItemFn);
 
-    let info = FnInfo::new(&func);
+    let fn_info = FnInfo::new(&func);
     // panic!("asdfasdfdsaf {:?}", info);
 
     // 注册命令到全局表
     ::once_cell::sync::Lazy::force(&COMMANDS);
+    insert(fn_info.clone());
 
-    insert(info);
+    let trait_bound_check_code = fn_info.gen_trait_bound_check();
 
-    TokenStream::from(quote!( #func))
+    if trait_bound_check_code.is_empty() {
+    } else {
+    }
+
+    // syn::parse(trait_bound_check_code);
+    let result = syn::parse_str::<syn::ItemConst>(&trait_bound_check_code);
+    match result {
+        Ok(trait_bound_check_ast) => {
+            println!("asdf: {}", trait_bound_check_code);
+            // panic!();
+            return TokenStream::from(quote!(
+
+                #trait_bound_check_ast
+                #func
+
+            ));
+        }
+        Err(_) => {
+            return TokenStream::from(quote!(
+
+                #func
+
+            ));
+        }
+    }
+
+    // println!("asdf: {}", trait_bound_check_code);
+    // // panic!();
+
+    // return TokenStream::from(quote!(
+
+    //     #func
+
+    // ));
+
+    // TokenStream::from(quote!(
+
+    //     #result
+    //     #func
+
+    // ))
 }
 
 fn insert(info: FnInfo) {
@@ -64,13 +105,6 @@ pub fn run(input: TokenStream) -> TokenStream {
                 .to_compile_error()
                 .into();
         }
-
-        // let s = lit.clone().unwrap();
-        // if s.value().is_empty() {
-        //     return syn::Error::new(s.span(), "命令的名称不能为空 \"\"")
-        //         .to_compile_error()
-        //         .into();
-        // }
     }
 
     // 把 TokenStream 转成字符串（可解析成 AST）
@@ -92,33 +126,40 @@ pub fn run(input: TokenStream) -> TokenStream {
     // 生成新的代码
     let expanded_tokens = quote! {
 
-    let A01K43QTAA353DAH630HBJRGTSY = || {
-        use aslip::types::*;
-        use ::aslip::from_arg_sttr::FromArgStr;
 
-        let app = ::aslip::app::App::new(#app_descript_litstr);
-        let Some(cmd_name) = &app._user_inputed_cmd_name else {
-            app.print_app_help();
-            return;
-        };
+    {
+         use aslip::types::*;
+         use ::aslip::from_arg_sttr::FromArgStr;
 
-
-        match cmd_name.as_str() {
-            "" => panic!("命令的名称不能时 空字符串 \"\"") ,
+         let app = ::aslip::app::App::new(#app_descript_litstr);
+         let Some(cmd_name) = &app._user_inputed_cmd_name else {
+             app.print_app_help();
+             return;
+         };
 
 
-             #(#arms)*
+         match cmd_name.as_str() {
+             "" => panic!("命令的名称不能时 空字符串 \"\"") ,
 
 
-            _ => println!("error: no such command: {:?}", cmd_name),
+              #(#arms)*
 
-        };
 
-    };
+             _ => println!("error: no such command: {:?}", cmd_name),
 
-    A01K43QTAA353DAH630HBJRGTSY();
+         };
 
-    };
+     };
+
+
+
+     };
 
     TokenStream::from(expanded_tokens)
+}
+
+/// 自定义一些 app 信息。
+#[proc_macro]
+pub fn run_with(input: TokenStream) -> TokenStream {
+    todo!()
 }

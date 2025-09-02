@@ -89,4 +89,41 @@ impl FnInfo {
             args = variables.join(","),
         )
     }
+
+    pub fn gen_trait_bound_check(&self) -> String {
+        if self.func_args.is_empty() {
+            return String::new();
+        }
+
+        // // trait bound check.
+        // const _: () = {
+        //     ::aslip::from_arg_sttr::from_arg_str_trait_bound_check::<Haha>();
+        // };
+
+        let mut each_check: String = String::new();
+        for a in &self.func_args {
+            each_check.push_str(&gen_check_one(&a.type_name));
+            each_check.push_str("\n");
+        }
+
+        let trait_bound_check_code = format!(
+            r###"
+
+    // trait bound check.
+    const _: () = {{
+        {}
+    }};
+    "###,
+            each_check
+        );
+
+        fn gen_check_one(type_name: &str) -> String {
+            format!(
+                "        ::aslip::from_arg_sttr::from_arg_str_trait_bound_check::<{}>();",
+                type_name
+            )
+        }
+
+        return trait_bound_check_code;
+    }
 }
