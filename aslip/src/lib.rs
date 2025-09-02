@@ -1,13 +1,9 @@
-use std::net::IpAddr;
-
 ///! aslip::types:: 中的每个类型都可以作为 `#[command` 标记的函数的参数。
 
 ///! # aslip
 pub use aslip_macro;
 pub use aslip_macro::command;
 pub use aslip_macro::run;
-
-use crate::from_arg_sttr::FromArgStr;
 
 pub mod app;
 pub mod from_arg_sttr;
@@ -19,11 +15,9 @@ pub mod types;
 // pub use app::*;
 
 // maybe never !
-pub fn tail_colection_type_convert<T: from_arg_sttr::FromArgStr>(args: &[String]) -> Vec<T> {
+pub fn vec_type_converter<T: from_arg_sttr::FromArgStr>(args: &[String]) -> Vec<T> {
     use owo_colors::OwoColorize;
     use std::process::exit;
-    use std::thread::sleep;
-    use std::time::Duration;
 
     let mut re: Vec<T> = vec![];
     for x in args {
@@ -38,7 +32,7 @@ pub fn tail_colection_type_convert<T: from_arg_sttr::FromArgStr>(args: &[String]
                     x.green(),
                     std::any::type_name::<T>().cyan().bold()
                 );
-                sleep(Duration::new(1, 0));
+
                 exit(1);
             }
         }
@@ -49,7 +43,7 @@ pub fn tail_colection_type_convert<T: from_arg_sttr::FromArgStr>(args: &[String]
 
 #[test]
 fn sadfadsf() {
-    let sadf: Vec<IpAddr> = tail_colection_type_convert(&[
+    let _sadf: Vec<std::net::IpAddr> = vec_type_converter(&[
         format!("1"),
         format!("2"),
         format!("3"),

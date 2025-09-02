@@ -9,9 +9,9 @@ extern crate proc_macro;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct FnArgInfo {
-  pub  arg_name: String,
-  pub  type_name: String,
-  pub  fn_arg_doc: Vec<String>,
+    pub arg_name: String,
+    pub type_name: String,
+    pub fn_arg_doc: Vec<String>,
 }
 
 impl FnArgInfo {
@@ -65,32 +65,25 @@ impl FnArgInfo {
         return None;
     }
 
+    /// 生成 cmd_arg_str -> rust_typed_value.
+    ///          String -> T.
     /// returns.0 -> auto_name
-    /// returns.1 -> the let expr.
-    pub fn gen_code(&self, index: usize) -> (String, String) {
-        let auto_name = self.auto_name(index);
-        let _converted = auto_name.clone() + "_converted";
-
-        let get_arg_code = format!(
-            "let {} = app._user_inputed_cmd_args.get({}).unwrap().clone();",
-            auto_name, index,
-        );
-
-        let convert_right_sede_code = self.type_convert(&self.type_name, &auto_name);
-
-        let type_convert_code = format!(
-            "let {}: {} = {};",
-            _converted, self.type_name, convert_right_sede_code,
-        );
-
-        return (_converted.clone(), get_arg_code + "\n" + &type_convert_code);
-    }
-
-    fn type_convert(&self, ty_name: &str, cmd_arg_variable_name: &str) -> String {
-        format!(
-            "<{} as ::aslip::from_arg_sttr::FromArgStr>::from_arg_str(&{}).unwrap().clone()",
-            ty_name, cmd_arg_variable_name
-        )
+    /// returns.1 -> the let exprs.
+    /// returns.0 == "__arg_0___converted";
+    /// returns.1 ==
+    ///      "
+    ///      let __arg_0__ = app._user_inputed_cmd_args.get(0).unwrap().clone();
+    ///      let __arg_0___converted: String =
+    ///          <String as ::aslip::from_arg_sttr::FromArgStr>::from_arg_str(&__arg_0__)
+    ///              .unwrap()
+    ///              .clone();
+    ///      ";
+    pub fn gen_type_converter_code(&self, index: usize) -> (String, String) {
+        if self.is_colection_type() {
+            self.gen_vec_type_convet(index)
+        } else {
+            self.gen_single_type(index)
+        }
     }
 
     fn auto_name(&self, index: usize) -> String {
@@ -98,7 +91,104 @@ impl FnArgInfo {
         format!("__arg_{}__", index,)
     }
 
-    fn is_colection_type(&self, type_name: &str) -> bool {
-        panic!("is_colection_type(_): type_name: {}", type_name);
+    pub fn is_colection_type(&self) -> bool {
+        let collection_types = ["Vec", "HashSet", "BTreeSet", "VecDeque"];
+
+        let type_name: &str = &self.type_name.replace(" ", "");
+
+        for x in collection_types {
+            if type_name.starts_with(x) {
+                return true;
+            }
+        }
+
+        return false;
     }
+
+    fn gen_single_type(&self, index: usize) -> (String, String) {
+        // __arg_0__
+        let arg_str_variable_name = self.auto_name(index);
+
+        // __arg_0___converted
+        let _converted_variable_name = arg_str_variable_name.clone() + "_converted";
+
+        {
+            let ty = &self.type_name;
+            let converted = format!(
+                r###"
+        let {_converted_variable_name}: {ty} = {{
+            let {arg_str_variable_name} = app._user_inputed_cmd_args.get({index}).unwrap().clone();
+        
+            <{ty} as ::aslip::from_arg_sttr::FromArgStr>::from_arg_str(&{arg_str_variable_name})
+                .unwrap()
+                .clone()
+        }};        
+        
+        
+        "###
+            );
+
+            return (_converted_variable_name.clone(), converted);
+        }
+    }
+
+    fn gen_vec_type_convet(&self, index: usize) -> (String, String) {
+        // __arg_0__
+        let arg_str_variable_name = self.auto_name(index);
+
+        // __arg_0___converted
+        let _converted_variable_name = arg_str_variable_name.clone() + "_converted";
+
+        let final_code: String = {
+            let ty = self.type_name.replace(" ", "");
+            let inner_ty = get_inner_ty(&ty);
+
+            format!(
+                r###"
+            let {_converted_variable_name}: {ty} = {{
+                let tail_args = app._user_inputed_cmd_args.get(1..).unwrap();
+                let re: {ty} = aslip::vec_type_converter::<{inner_ty}>(tail_args);
+
+                re
+            }};
+                "###
+            )
+        };
+
+        return (_converted_variable_name, final_code);
+    }
+}
+
+/// "Vec<u8>" -> "u8"
+/// 注意： 这港剧说并不支持  Vec<Option<u8>> 这样的类型嵌套，只支持 Vec<u8> 这样的， Result<O,E> 这种也是不支持的。
+fn get_inner_ty(s: &str) -> String {
+    let mut re = String::new();
+
+    let mut inner_started = false;
+    'outer: for x in s.chars() {
+        match x {
+            '<' => {
+                if inner_started {
+                    break 'outer;
+                }
+
+                inner_started = true
+            }
+            '>' => break 'outer,
+            a => {
+                if inner_started {
+                    re.push(a);
+                }
+            }
+        }
+    }
+
+    return re;
+}
+
+#[test]
+fn adsfadsf() {
+    println!("{}", get_inner_ty("Vec<u8>"));
+    println!("{}", get_inner_ty("Vec<String>"));
+    println!("{}", get_inner_ty("Vec<Option<u8>>"));
 }

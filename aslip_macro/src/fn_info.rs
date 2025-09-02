@@ -64,15 +64,32 @@ impl FnInfo {
             .collect()
     }
 
+    // "one_arg" => {
+    //      ...
+    // },
     pub fn gen_case_code(&self) -> String {
+        // 实参。
         let mut variables: Vec<String> = vec![];
-        let mut codes: Vec<String> = vec![];
-        for index in 0..self.func_args.len() {
-            let arg = self.func_args.get(index).expect(concat!(file!(), line!()));
-            let re = arg.gen_code(index);
 
-            variables.push(re.0);
-            codes.push(re.1);
+        let mut codes: Vec<String> = vec![];
+        {
+            for index in 0..self.func_args.len() {
+                let arg = self.func_args.get(index).expect(concat!(file!(), line!()));
+
+                // re.0 == "__arg_0___converted";
+                // re.1 ==
+                //      "
+                //      let __arg_0__ = app._user_inputed_cmd_args.get(0).unwrap().clone();
+                //      let __arg_0___converted: String =
+                //          <String as ::aslip::from_arg_sttr::FromArgStr>::from_arg_str(&__arg_0__)
+                //              .unwrap()
+                //              .clone();
+                //      ";
+                let re = arg.gen_type_converter_code(index);
+
+                variables.push(re.0);
+                codes.push(re.1);
+            }
         }
 
         format!(
@@ -90,20 +107,25 @@ impl FnInfo {
         )
     }
 
+    /// 生成 trait bound check 代码, 大概长这样。
+    /// const _: () = {
+    ///     ::aslip::from_arg_sttr::from_arg_str_trait_bound_check::<Haha>();
+    /// };
     pub fn gen_trait_bound_check(&self) -> String {
         if self.func_args.is_empty() {
             return String::new();
         }
 
-        // // trait bound check.
-        // const _: () = {
-        //     ::aslip::from_arg_sttr::from_arg_str_trait_bound_check::<Haha>();
-        // };
-
         let mut each_check: String = String::new();
-        for a in &self.func_args {
-            each_check.push_str(&gen_check_one(&a.type_name));
-            each_check.push_str("\n");
+        {
+            for a in &self.func_args {
+                if a.is_colection_type() {
+                    continue;
+                }
+
+                each_check.push_str(&gen_check_one(&a.type_name));
+                each_check.push_str("\n");
+            }
         }
 
         let trait_bound_check_code = format!(
@@ -111,10 +133,10 @@ impl FnInfo {
 
     // trait bound check.
     const _: () = {{
-        {}
+        {each_check}
     }};
     "###,
-            each_check
+            each_check = each_check
         );
 
         fn gen_check_one(type_name: &str) -> String {

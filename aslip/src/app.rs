@@ -1,3 +1,13 @@
+//
+
+#[allow(dead_code)]
+const SDAFADSF: App = App {
+    _app_name: String::new(),
+    _description: "todo!()",
+    _user_inputed_cmd_name: None,
+    _user_inputed_cmd_args: vec![],
+};
+
 /// 保存一些命令行程序的信息。
 pub struct App<'a> {
     pub _app_name: String,

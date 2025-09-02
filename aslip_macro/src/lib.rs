@@ -24,25 +24,23 @@ pub fn command(_args: TokenStream, input: TokenStream) -> TokenStream {
     // 解析输入的函数
     let func = parse_macro_input!(input as ItemFn);
 
-    let fn_info = FnInfo::new(&func);
-    // panic!("asdfasdfdsaf {:?}", info);
+    {
+        //  let re = crate::rules::rule_check(&func);
+        if let Some(err) = crate::rules::rule_check(&func) {
+            return err.to_compile_error().into();
+        }
+    }
 
-    // 注册命令到全局表
+    let fn_info = FnInfo::new(&func);
+
+    // 将 fn_info 存储到 COMMANDS 中， 留着给 aslip_macro::run!() 用。
     ::once_cell::sync::Lazy::force(&COMMANDS);
     insert(fn_info.clone());
 
     let trait_bound_check_code = fn_info.gen_trait_bound_check();
-
-    if trait_bound_check_code.is_empty() {
-    } else {
-    }
-
-    // syn::parse(trait_bound_check_code);
     let result = syn::parse_str::<syn::ItemConst>(&trait_bound_check_code);
     match result {
         Ok(trait_bound_check_ast) => {
-            println!("asdf: {}", trait_bound_check_code);
-            // panic!();
             return TokenStream::from(quote!(
 
                 #trait_bound_check_ast
@@ -50,7 +48,9 @@ pub fn command(_args: TokenStream, input: TokenStream) -> TokenStream {
 
             ));
         }
+
         Err(_) => {
+            // 没有需要除了的参数。直接返回原来的函数。
             return TokenStream::from(quote!(
 
                 #func
@@ -58,22 +58,6 @@ pub fn command(_args: TokenStream, input: TokenStream) -> TokenStream {
             ));
         }
     }
-
-    // println!("asdf: {}", trait_bound_check_code);
-    // // panic!();
-
-    // return TokenStream::from(quote!(
-
-    //     #func
-
-    // ));
-
-    // TokenStream::from(quote!(
-
-    //     #result
-    //     #func
-
-    // ))
 }
 
 fn insert(info: FnInfo) {
@@ -156,10 +140,4 @@ pub fn run(input: TokenStream) -> TokenStream {
      };
 
     TokenStream::from(expanded_tokens)
-}
-
-/// 自定义一些 app 信息。
-#[proc_macro]
-pub fn run_with(input: TokenStream) -> TokenStream {
-    todo!()
 }
