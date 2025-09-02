@@ -1,4 +1,3 @@
-
 use quote::quote;
 use syn::ItemFn;
 
@@ -7,7 +6,6 @@ use crate::FnArgInfo;
 extern crate proc_macro;
 
 // 实例化插件注册表
-inventory::collect!(FnInfo);
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct FnInfo {

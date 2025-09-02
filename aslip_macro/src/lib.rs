@@ -85,12 +85,11 @@ pub fn run(input: TokenStream) -> TokenStream {
 
     // 生成新的代码
     let expanded_tokens = quote! {
+        
     let A01K43QTAA353DAH630HBJRGTSY = || {
-        use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
-        use std::path::PathBuf;
-        use std::ffi::CString;
         use aslip::types::*;
-        use aslip::*;
+
+        use ::aslip::from_arg_sttr::FromArgStr;
 
         let app = ::aslip::app::App::new(#app_descript_litstr);
         let Some(cmd_name) = &app._user_inputed_cmd_name else {

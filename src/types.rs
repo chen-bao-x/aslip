@@ -1,5 +1,3 @@
-
-
 // # ::core::str::FromStr
 
 // url email
@@ -31,6 +29,17 @@ impl<const START: isize, const END: isize> ::core::str::FromStr for NumberInRang
         }
     }
 }
+
+// impl<T> core::str::FromStr for Box<T>
+// where
+//     T: core::str::FromStr,
+// {
+//     type Err = <T as core::str::FromStr>::Err;
+
+//     fn from_str(s: &str) -> Result<Self, Self::Err> {
+//         T::from_str(s).map(|x| Box::new(x))
+//     }
+// }
 
 pub use String;
 pub use bool;

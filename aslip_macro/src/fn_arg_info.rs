@@ -92,7 +92,7 @@ impl FnArgInfo {
 
     fn type_convert(&self, ty_name: &str, cmd_arg_variable_name: &str) -> String {
         format!(
-            "<{} as ::core::str::FromStr>::from_str(&{}).unwrap().clone()",
+            "<{} as ::aslip::from_arg_sttr::FromArgStr>::from_arg_str(&{}).unwrap().clone()",
             ty_name, cmd_arg_variable_name
         )
     }
