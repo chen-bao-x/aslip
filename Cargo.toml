@@ -1,7 +1,4 @@
-[package]
-name = "aslip"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = ["aslip_macro", "aslip", "aslip_test"]
 
-[dependencies]
-ascp_macro = { path = "./aslip_macro" }
+resolver = "3"

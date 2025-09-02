@@ -1,7 +1,7 @@
-// aslip
-pub use ascp_macro;
-pub use ascp_macro::command;
-pub use ascp_macro::run;
+///! # aslip
+pub use aslip_macro;
+pub use aslip_macro::command;
+pub use aslip_macro::run;
 
 pub mod app;
 pub mod from_arg_sttr;

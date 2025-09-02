@@ -78,7 +78,26 @@ xcuserdata/
 /*.gcno
 **/xcshareddata/WorkspaceSettings.xcsettings
 
+# ---- OS / Common ----
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
+# Linux
+*~
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,xcode,visualstudiocode
 
 # rust
+# 忽略仓库根目录下的 target 文件夹。
 /target
+
+# 忽略任意子目录下的 target 文件夹（比如 crate1/target/、crate2/target/ 等）。
+**/target/
+
+# IntelliJ / CLion / RustRover
+.idea/
+
+# Sublime
+*.sublime-workspace
+*.sublime-project

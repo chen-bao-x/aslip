@@ -56,15 +56,21 @@ static COMMANDS: once_cell::sync::Lazy<Mutex<HashMap<String, FnInfo>>> =
 #[proc_macro]
 pub fn run(input: TokenStream) -> TokenStream {
     let lit: Result<syn::LitStr, syn::Error> = syn::parse(input.clone());
-    // let lit: syn::LitStr = syn::parse(input.clone()).expect("需要对此程序的一句话说明。");
     {
         // error handle.
         if let Err(err) = lit {
             // 把 syn::Error 转成编译错误
-            return syn::Error::new(err.span(), "tips: aslip::run!(\"此程序的一句话说明。\");")
+            return syn::Error::new(err.span(), "tips: aslip::run!(\"此程序的一句话说明.\");")
                 .to_compile_error()
                 .into();
         }
+
+        // let s = lit.clone().unwrap();
+        // if s.value().is_empty() {
+        //     return syn::Error::new(s.span(), "命令的名称不能为空 \"\"")
+        //         .to_compile_error()
+        //         .into();
+        // }
     }
 
     // 把 TokenStream 转成字符串（可解析成 AST）
@@ -85,10 +91,9 @@ pub fn run(input: TokenStream) -> TokenStream {
 
     // 生成新的代码
     let expanded_tokens = quote! {
-        
+
     let A01K43QTAA353DAH630HBJRGTSY = || {
         use aslip::types::*;
-
         use ::aslip::from_arg_sttr::FromArgStr;
 
         let app = ::aslip::app::App::new(#app_descript_litstr);

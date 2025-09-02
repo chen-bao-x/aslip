@@ -1,8 +1,14 @@
+/// 保存一些命令行程序的信息。
 pub struct App<'a> {
-    pub _description: &'a str,
     pub _app_name: String,
+    pub _description: &'a str,
+
+    // TODO: app_document
+    // TODO: command_document
+    // TODO: argument description.
 
     // state
+    ///
     pub _user_inputed_cmd_name: Option<String>,
 
     /// 如果没有传入参数，则等于 vec![]
