@@ -1,41 +1,77 @@
+use crate::{AttibuteArgList, FnArgInfo};
+use proc_macro::TokenStream;
 use quote::quote;
-use syn::ItemFn;
-
-use crate::FnArgInfo;
+use syn::{ItemFn, spanned::Spanned};
 
 extern crate proc_macro;
 
 // 实例化插件注册表
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Clone)]
 pub struct FnInfo {
     pub func_name: String,
     pub func_args: Vec<FnArgInfo>,
     pub func_doc_comments: Vec<String>,
+
+    pub attribute_args: AttibuteArgList,
+
+    pub local_file_path: String,
+    pub line: usize,
+    pub colum: usize,
 }
 
 impl FnInfo {
-    pub fn new(fn_item: &ItemFn) -> FnInfo {
+    pub fn new(attr: TokenStream, fn_item: &ItemFn) -> FnInfo {
         // 1. 获取函数名称
         let fn_name = &fn_item.sig.ident;
 
         // 2. 遍历参数，提取参数名称和类型
-        let mut args = Vec::<FnArgInfo>::new();
+        let mut func_args_pair = Vec::<FnArgInfo>::new();
         {
             for arg in &fn_item.sig.inputs {
                 let f = FnArgInfo::new(arg.clone()).expect(concat!(file!(), line!()));
-                args.push(f);
+                func_args_pair.push(f);
             }
         }
 
         // 3. 从属性中提取文档注释
-        let doc_comments = FnInfo::get_doc_comments(fn_item.clone());
+        let func_doc_comment = FnInfo::get_doc_comments(fn_item.clone());
 
-        FnInfo {
+        let func_span = fn_item.span().unwrap();
+        let func_in_path = {
+            if let Some(buf) = func_span.local_file() {
+                if let Ok(buf_2) = buf.canonicalize() {
+                    if let Some(s) = buf_2.to_str() {
+                        s.to_string()
+                    } else {
+                        func_span.file()
+                    }
+                } else {
+                    func_span.file()
+                }
+            } else {
+                func_span.file()
+            }
+        };
+
+        // 4. parse attribute macro arguments.
+        let attribute_arg_list = {
+            let re: syn::Result<AttibuteArgList> = syn::parse(attr);
+            match re {
+                Ok(list) => list,
+                Err(_) => AttibuteArgList { args: Vec::new() },
+            }
+        };
+
+        return FnInfo {
             func_name: quote!(#fn_name).to_string(),
-            func_args: args,
-            func_doc_comments: doc_comments,
-        }
+            func_args: func_args_pair,
+            func_doc_comments: func_doc_comment,
+            local_file_path: func_in_path,
+            line: func_span.line(),
+            colum: func_span.column(),
+            attribute_args: attribute_arg_list,
+        };
     }
 
     /// 获取函数的文档注释。
@@ -119,11 +155,13 @@ impl FnInfo {
         let mut each_check: String = String::new();
         {
             for a in &self.func_args {
-                if a.is_colection_type() {
-                    continue;
-                }
+                let ty_name = if a.is_colection_type() {
+                    &crate::get_inner_ty(&a.type_name)
+                } else {
+                    &a.type_name
+                };
 
-                each_check.push_str(&gen_check_one(&a.type_name));
+                each_check.push_str(&gen_check_one(ty_name));
                 each_check.push_str("\n");
             }
         }

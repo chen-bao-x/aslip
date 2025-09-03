@@ -1,12 +1,15 @@
 // 1. cmd action 不能用返回值。
 // 2. 只有最后一个参数可以是 数组这样的集合类型。
+// 3. can命令的名称不能重复。
 
-pub fn rule_check(input: &syn::ItemFn) -> Option<syn::Error> {
+use crate::FnInfo;
+
+pub fn rule_check(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> Option<syn::Error> {
     if let Some(err) = rule_1(input) {
         return Some(err);
     }
 
-    if let Some(err) = rule_2(input) {
+    if let Some(err) = rule_2(attr, input) {
         return Some(err);
     }
 
@@ -25,8 +28,8 @@ pub fn rule_1(input: &syn::ItemFn) -> Option<syn::Error> {
 }
 
 /// rule 2. 只有最后一个参数可以是 数组这样的集合类型。
-pub fn rule_2(input: &syn::ItemFn) -> Option<syn::Error> {
-    let mut fn_info = crate::FnInfo::new(input);
+pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> Option<syn::Error> {
+    let mut fn_info = crate::FnInfo::new(attr, input);
 
     // 1. 去掉最后一个参数。
     let _poped = fn_info.func_args.pop();
@@ -55,6 +58,12 @@ pub fn rule_2(input: &syn::ItemFn) -> Option<syn::Error> {
 
     // evry thing's ok.
     return None;
+}
+
+/// rule 3. 命令的名称不能重复。
+pub fn rule_3(old: FnInfo, new: FnInfo, span: proc_macro2::Span) -> syn::Error {
+    let msg = format!("命令的名称不能重复");
+    return syn::Error::new(span, msg);
 }
 
 // toos functions。

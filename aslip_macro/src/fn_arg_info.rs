@@ -7,7 +7,7 @@ use syn::Pat;
 
 extern crate proc_macro;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Clone)]
 pub struct FnArgInfo {
     pub arg_name: String,
     pub type_name: String,
@@ -112,19 +112,33 @@ impl FnArgInfo {
         // __arg_0___converted
         let _converted_variable_name = arg_str_variable_name.clone() + "_converted";
 
+        // {
+        //     let ty = &self.type_name;
+        //     let converted = format!(
+        //         r###"
+        // let {_converted_variable_name}: {ty} = {{
+        //     let {arg_str_variable_name} = app._user_inputed_cmd_args.get({index}).unwrap().clone();
+
+        //     <{ty} as ::aslip::from_arg_sttr::FromArgStr>::from_arg_str(&{arg_str_variable_name})
+        //         .unwrap()
+        //         .clone()
+        // }};
+
+        // "###
+        //     );
+
+        //     return (_converted_variable_name.clone(), converted);
+        // }
         {
             let ty = &self.type_name;
             let converted = format!(
                 r###"
-        let {_converted_variable_name}: {ty} = {{
-            let {arg_str_variable_name} = app._user_inputed_cmd_args.get({index}).unwrap().clone();
-        
-            <{ty} as ::aslip::from_arg_sttr::FromArgStr>::from_arg_str(&{arg_str_variable_name})
-                .unwrap()
-                .clone()
-        }};        
-        
-        
+ 
+            let {_converted_variable_name}: {ty} = {{
+                let {arg_str_variable_name}: &String = app._user_inputed_cmd_args.get({index}).unwrap();
+                let value: {ty} = aslip::single_type_converter::<{ty}>({arg_str_variable_name});
+                value
+            }};
         "###
             );
 
@@ -146,7 +160,7 @@ impl FnArgInfo {
             format!(
                 r###"
             let {_converted_variable_name}: {ty} = {{
-                let tail_args = app._user_inputed_cmd_args.get(1..).unwrap();
+                let tail_args = app._user_inputed_cmd_args.get({index}..).unwrap();
                 let re: {ty} = aslip::vec_type_converter::<{inner_ty}>(tail_args);
 
                 re
@@ -161,7 +175,7 @@ impl FnArgInfo {
 
 /// "Vec<u8>" -> "u8"
 /// 注意： 这港剧说并不支持  Vec<Option<u8>> 这样的类型嵌套，只支持 Vec<u8> 这样的， Result<O,E> 这种也是不支持的。
-fn get_inner_ty(s: &str) -> String {
+pub fn get_inner_ty(s: &str) -> String {
     let mut re = String::new();
 
     let mut inner_started = false;

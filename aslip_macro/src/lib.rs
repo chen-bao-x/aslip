@@ -7,8 +7,14 @@ use std::time::Duration;
 
 use proc_macro::TokenStream;
 use quote::quote;
+use syn::Attribute;
 use syn::ItemFn;
 use syn::parse_macro_input;
+use syn::spanned::Spanned;
+use syn::{
+    Ident, Lit, Token,
+    parse::{Parse, ParseStream},
+};
 
 extern crate proc_macro;
 
@@ -26,16 +32,23 @@ pub fn command(_args: TokenStream, input: TokenStream) -> TokenStream {
 
     {
         //  let re = crate::rules::rule_check(&func);
-        if let Some(err) = crate::rules::rule_check(&func) {
+        if let Some(err) = crate::rules::rule_check(_args.clone(), &func) {
             return err.to_compile_error().into();
         }
     }
 
-    let fn_info = FnInfo::new(&func);
+    let fn_info = FnInfo::new(_args, &func);
 
-    // 将 fn_info 存储到 COMMANDS 中， 留着给 aslip_macro::run!() 用。
-    ::once_cell::sync::Lazy::force(&COMMANDS);
-    insert(fn_info.clone());
+    {
+        // 将 fn_info 存储到 COMMANDS 中， 留着给 aslip_macro::run!() 用。
+        ::once_cell::sync::Lazy::force(&COMMANDS);
+        let re = insert(fn_info.clone(), func.span());
+        if let Err(e) = re {
+            return e.into_compile_error().into();
+        }
+    }
+
+    println!("fn_info: {:#?}", fn_info);
 
     let trait_bound_check_code = fn_info.gen_trait_bound_check();
     let result = syn::parse_str::<syn::ItemConst>(&trait_bound_check_code);
@@ -60,15 +73,20 @@ pub fn command(_args: TokenStream, input: TokenStream) -> TokenStream {
     }
 }
 
-fn insert(info: FnInfo) {
+fn insert(info: FnInfo, span: proc_macro2::Span) -> Result<(), syn::Error> {
     let re = COMMANDS.lock();
 
     match re {
         Ok(mut m) => {
-            let _ = m.insert(info.func_name.clone(), info.clone());
-            return;
+            let old_cmd = m.insert(info.func_name.clone(), info.clone());
+            if let Some(cmd) = old_cmd {
+                return Err(rule_3(cmd, info, span));
+                // panic!("命令的名称不能重复：{}", cmd.func_name);
+            }
+
+            return Ok(());
         }
-        Err(_) => sleep(Duration::new(0, 1_000_000_000 / 10)),
+        Err(e) => Err(syn::Error::new(span, e.to_string())),
     }
 }
 
@@ -140,4 +158,46 @@ pub fn run(input: TokenStream) -> TokenStream {
      };
 
     TokenStream::from(expanded_tokens)
+}
+
+mod attribute_args;
+use attribute_args::*;
+
+use crate::rules::rule_3;
+#[proc_macro_attribute]
+pub fn command_2(attr: TokenStream, item: TokenStream) -> TokenStream {
+    // 解析参数
+    let args = syn::parse_macro_input!(attr as AttibuteArgList);
+    for arg in &args.args {
+        println!("key = {}, value = {:?}", arg.key, arg.value,);
+    }
+
+    if args.args.is_empty() {
+        println!("args is empty.")
+    }
+
+    // 原函数不变
+    let item = proc_macro2::TokenStream::from(item);
+
+    quote!(#item).into()
+}
+
+#[proc_macro_attribute]
+pub fn command_3(attr: TokenStream, item: TokenStream) -> TokenStream {
+    // 解析参数
+    // let args = syn::parse_macro_input!(attr as syn::LitStr);
+
+    let re: syn::Result<syn::LitStr> = syn::parse(attr);
+    match re {
+        Ok(about) => {
+            println!("inputed arg is: {:?}", about.value());
+        }
+        Err(e) => {
+            println!("没有出入。",);
+        }
+    }
+
+    // 原函数不变
+    let item = proc_macro2::TokenStream::from(item);
+    quote!(#item).into()
 }

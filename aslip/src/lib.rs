@@ -15,6 +15,27 @@ pub mod types;
 // pub use app::*;
 
 // maybe never !
+pub fn single_type_converter<T: from_arg_sttr::FromArgStr>(arg: &String) -> T {
+    use owo_colors::OwoColorize;
+
+    let asdf = <T as from_arg_sttr::FromArgStr>::from_arg_str(arg);
+    match asdf {
+        Ok(val) => return val,
+        Err(e) => {
+            eprintln!(
+                "{}{}: 将 {:?} 转换为 {} 出错。",
+                "error: ".red().bold(),
+                std::any::type_name_of_val(&e).red(),
+                arg.green(),
+                std::any::type_name::<T>().cyan().bold()
+            );
+
+            std::process::exit(1);
+        }
+    };
+}
+
+// maybe never !
 pub fn vec_type_converter<T: from_arg_sttr::FromArgStr>(args: &[String]) -> Vec<T> {
     use owo_colors::OwoColorize;
     use std::process::exit;

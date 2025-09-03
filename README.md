@@ -1,4 +1,6 @@
-# aslip
+# **aslip**
+
+## **a** **s**imple command **li**ne argument **p**arser.
 
 ## 重要提示：
 
@@ -7,15 +9,16 @@
 > 尽量在 `main.rs` 中使用 `#[command]`.  
 > rust 编译器再宏展开时是有先后顺序的，  
 > 在其他文件中使用 `#[command]` 能确保 `#[command]` 在 `aslip::run!()` 之前展开.  
-> 如果要在 `main.rs` 中使用 `#[command]`,   
+> 如果要在 `main.rs` 中使用 `#[command]`,  
 > 记得确保 `#[command]` 标记的函数在 `main()` 函数的前面，例如：
+>
 > ```rust
-> 
+>
 > #[command]
 > fn ls(path: PathBuf){
-> 
+>
 > }
-> 
+>
 > fn main(){
 >      aslip::run!("list files.");
 > }
