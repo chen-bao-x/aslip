@@ -1,6 +1,5 @@
 // aslip_
 
-use std::fmt::Debug;
 use syn::Ident;
 use syn::LitStr;
 use syn::Token;
@@ -20,10 +19,11 @@ pub struct AttibuteArg {
 impl AttibuteArg {
     pub fn suprted_arg_check(key_ident: &proc_macro2::Ident) -> syn::Result<()> {
         const SUPORTED_ARGS: &[&str] = &[
-            "about",      // 命令的一句话说明。
-            "quick_help", // app cmd -h 时显示的信息。
-            "doc",        // 该命令的详细文档。 app help cmd 时显示的详细文档。
-            "short",      // command short name.
+            "name", // 命令的实际命令名称。 如果没有设置，则默认使用 函数的名称 作为 命令名称。
+            "about", // 命令的一句话说明。
+            "short", // 命令的短名称，通常是命令名称的第一个字母。
+                    // "quick_help", // app cmd -h 时显示的信息。
+                    // "doc",        // 该命令的详细文档。 app help cmd 时显示的详细文档。
         ];
 
         let key = format!("{}", key_ident);
@@ -33,10 +33,8 @@ impl AttibuteArg {
 不支持的参数：{key}
 
 已经支持的参数有：
-    about          命令的一句话说明。
-    quick_help     app cmd -h 时显示的信息。
-    doc            该命令的详细文档。 app help cmd 时显示的详细文档。
-    short          命令的短名称，例如：`cargo b`
+    name        命令的实际命令名称。 如果没有设置，则默认使用 函数的名称 作为 命令名称。
+    short       命令的短名称，通常是命令名称的第一个字母。
 
 for more infomation: https://google.com
 "
@@ -82,5 +80,19 @@ impl Parse for AttibuteArgList {
         Ok(AttibuteArgList {
             args: args.into_iter().collect(),
         })
+    }
+}
+impl AttibuteArgList {
+    ///    name        命令的实际命令名称。 如果没有设置，则默认使用 函数的名称 作为 命令名称。
+    ///
+    ///    short       命令的短名称，通常是命令名称的第一个字母。
+    pub fn get(&self, key: &str) -> Option<&AttibuteArg> {
+        for x in &self.args {
+            if x.key == key {
+                return Some(x);
+            }
+        }
+
+        return None;
     }
 }

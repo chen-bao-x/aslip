@@ -10,8 +10,8 @@ pub fn insert(info: FnInfo, span: proc_macro2::Span) -> Result<(), syn::Error> {
 
     match re {
         Ok(mut m) => {
-            let old_cmd = m.insert(info.func_name.clone(), info.clone());
-            crate::rule_3(old_cmd, info, span)?;
+            let _old_cmd = m.insert(info.func_name.clone(), info.clone());
+            // crate::rule_3(old_cmd, info, span)?; // 这是重复名称检查的实现有 bug，暂时先不用。
 
             return Ok(());
         }

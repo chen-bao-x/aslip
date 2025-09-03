@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 use crate::{AttibuteArgList, FnArgInfo};
 use proc_macro::TokenStream;
 use quote::quote;
@@ -13,6 +11,7 @@ extern crate proc_macro;
 pub struct FnInfo {
     pub func_name: String,
     pub func_args: Vec<FnArgInfo>,
+
     pub func_doc_comments: Vec<String>,
     pub attribute_args: AttibuteArgList,
     pub local_file_path: String,
@@ -21,7 +20,7 @@ pub struct FnInfo {
 }
 
 impl FnInfo {
-    pub fn new(attr: TokenStream, fn_item: &ItemFn) -> FnInfo {
+    pub fn new(attr: TokenStream, fn_item: &ItemFn) -> syn::Result<FnInfo> {
         // 1. 获取函数名称
         let fn_name = &fn_item.sig.ident;
 
@@ -59,11 +58,13 @@ impl FnInfo {
             let re: syn::Result<AttibuteArgList> = syn::parse(attr);
             match re {
                 Ok(list) => list,
-                Err(_) => AttibuteArgList { args: Vec::new() },
+                Err(e) => {
+                    return Err(e);
+                }
             }
         };
 
-        return FnInfo {
+        let fn_info = FnInfo {
             func_name: quote!(#fn_name).to_string(),
             func_args: func_args_pair,
             func_doc_comments: func_doc_comment,
@@ -72,6 +73,8 @@ impl FnInfo {
             colum: func_span.column(),
             attribute_args: attribute_arg_list,
         };
+
+        return Ok(fn_info);
     }
 
     /// 获取函数的文档注释。
@@ -185,5 +188,35 @@ impl FnInfo {
         }
 
         return trait_bound_check_code;
+    }
+
+    pub fn gen_push_to_app_command_list(&self) -> proc_macro2::TokenStream {
+        let name: &str = {
+            if let Some(arg) = self.attribute_args.get("name") {
+                &arg.value
+            } else {
+                &self.func_name
+            }
+        };
+
+        let short_name: &str = {
+            if let Some(arg) = self.attribute_args.get("short") {
+                &arg.value
+            } else {
+                ""
+            }
+        };
+
+        let about: &str = {
+            if let Some(arg) = self.attribute_args.get("about") {
+                &arg.value
+            } else {
+                &self.func_doc_comments.join("\n")
+            }
+        };
+
+        return quote! {
+            app._commands.push(::aslip::app::CmdInfo::new(#name, #short_name, #about));
+        };
     }
 }

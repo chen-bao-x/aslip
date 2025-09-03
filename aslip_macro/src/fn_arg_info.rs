@@ -1,6 +1,5 @@
 // lib.rs
 
-use owo_colors::OwoColorize;
 use quote::quote;
 use syn::FnArg;
 use syn::Ident;

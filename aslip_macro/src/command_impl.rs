@@ -1,16 +1,9 @@
-use std::thread::sleep;
-use std::time::Duration;
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::Attribute;
 use syn::ItemFn;
 use syn::parse_macro_input;
 use syn::spanned::Spanned;
-use syn::{
-    Ident, Lit, Token,
-    parse::{Parse, ParseStream},
-};
 
 use crate::FnInfo;
 
@@ -21,13 +14,17 @@ pub fn command_impl(_args: TokenStream, input: TokenStream) -> TokenStream {
     let func = parse_macro_input!(input as ItemFn);
 
     {
-        //  let re = crate::rules::rule_check(&func);
-        if let Some(err) = crate::rules::rule_check(_args.clone(), &func) {
-            return err.to_compile_error().into();
-        }
+        // error check。
+        match crate::rules::rule_check(_args.clone(), &func) {
+            Ok(_) => {}
+            Err(e) => return e.to_compile_error().into(),
+        };
     }
 
-    let fn_info = FnInfo::new(_args, &func);
+    let fn_info = match FnInfo::new(_args, &func) {
+        Ok(info) => info,
+        Err(e) => return e.into_compile_error().into(),
+    };
 
     {
         // 将 fn_info 存储到 COMMANDS 中， 留着给 aslip_macro::run!() 用。
@@ -65,11 +62,6 @@ pub fn command_impl(_args: TokenStream, input: TokenStream) -> TokenStream {
     }
 }
 
+fn adsfdasf_quick_help() {}
 
-fn adsfdasf_quick_help(){
-
-}
-
-fn adsfdasf_document(){
-    
-}
+fn adsfdasf_document() {}

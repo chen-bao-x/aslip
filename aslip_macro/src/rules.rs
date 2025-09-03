@@ -4,32 +4,34 @@
 
 use crate::FnInfo;
 
-pub fn rule_check(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> Option<syn::Error> {
-    if let Some(err) = rule_1(input) {
-        return Some(err);
-    }
+pub fn rule_check(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> syn::Result<()> {
+    rule_1(input)?;
+    // if let Some(err) = rule_1(input) {
+    //     return Some(err);
+    // }
+    rule_2(attr, input)?;
+    // if let Some(err) = rule_2(attr, input) {
+    //     return Some(err);
+    // }
 
-    if let Some(err) = rule_2(attr, input) {
-        return Some(err);
-    }
-
-    return None;
+    return Ok(());
 }
 
 /// rule 1 被 #[command] 标记的函数不能有返回值。
-pub fn rule_1(input: &syn::ItemFn) -> Option<syn::Error> {
+pub fn rule_1(input: &syn::ItemFn) -> syn::Result<()> {
     // 检查返回值
     if let syn::ReturnType::Type(_, ty) = &input.sig.output {
         // 有返回值 → 报错
 
-        return Some(syn::Error::new_spanned(ty, "command 函数不能有返回值。"));
+        return Err(syn::Error::new_spanned(ty, "command 函数不能有返回值。"));
     }
-    return None;
+
+    return Ok(());
 }
 
 /// rule 2. 只有最后一个参数可以是 数组这样的集合类型。
-pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> Option<syn::Error> {
-    let mut fn_info = crate::FnInfo::new(attr, input);
+pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> syn::Result<()> {
+    let mut fn_info = crate::FnInfo::new(attr, input)?;
 
     // 1. 去掉最后一个参数。
     let _poped = fn_info.func_args.pop();
@@ -47,9 +49,9 @@ pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> Option<syn:
                 .expect(concat!(file!(), line!()));
 
             let ty_span = get_ty_span(arg);
-            return Some(syn::Error::new(
+            return Err(syn::Error::new(
                 ty_span,
-                "只有最后一个参数可以使用 Vec<T> 类型。  pat_type",
+                "只有最后一个参数可以使用 Vec<T> 类型。",
             ));
         }
 
@@ -57,7 +59,7 @@ pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> Option<syn:
     }
 
     // evry thing's ok.
-    return None;
+    return Ok(());
 }
 
 /// rule 3. 命令的名称不能重复。

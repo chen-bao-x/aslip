@@ -1,13 +1,12 @@
 use aslip::command;
 use aslip::types::NumberInRange;
-use std::str::FromStr;
+
 
 // use aslip::*;
 
-/// 测试没有参数的命令。
 #[command]
+/// 测试没有参数的命令。
 pub fn no_arg_action() {
-    println!("{}", module_path!());
     println!("I'm no_arg_action, happy to see you.");
 }
 
@@ -23,11 +22,6 @@ pub fn a3452() {
 
 #[command]
 pub fn one_arg(path: String) {
-    _ = String::from_str("s");
-    // ::aslip::FromArgStr::from_arg_str(s)
-
-    let _a = <String as ::aslip::from_arg_sttr::FromArgStr>::from_arg_str("");
-
     println!(
         "one_arg  I'm one_arg, happy to see you.\n your input is: {:?}",
         path
@@ -53,13 +47,10 @@ pub fn arg_9(a1: u8, a2: u8, a3: u8, a4: u8, a5: u8, a6: u8, a7: u8, a8: u8, a9:
 
 #[command]
 pub fn collection_arg(first: u8, last: Vec<u8>) {
-    println!(
-        "one_arg  I'm one_arg, happy to see you.\n your input is: {:?} {:?}",
-        first, last
-    );
+    println!("your input is: {:?} {:?}", first, last);
 }
 
-#[command(a = "asdfasdf", b = "adfasdfsadf")]
+#[command(name = "renamed", short = "c", about="这是覆盖后的 about。")]
 /// 一句话说明。
 pub fn test_for_macro_args() {}
 
