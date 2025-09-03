@@ -10,7 +10,7 @@ use syn::parse::ParseStream;
 extern crate proc_macro;
 
 /// 代表一个键值对参数： a = "xxx"
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AttibuteArg {
     pub key: String,
     pub _eq: String,
@@ -36,7 +36,7 @@ impl AttibuteArg {
     about          命令的一句话说明。
     quick_help     app cmd -h 时显示的信息。
     doc            该命令的详细文档。 app help cmd 时显示的详细文档。
-    short          command short name.
+    short          命令的短名称，例如：`cargo b`
 
 for more infomation: https://google.com
 "
@@ -71,7 +71,7 @@ impl Parse for AttibuteArg {
 }
 
 /// 支持多个参数, 用逗号分隔
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AttibuteArgList {
     pub args: Vec<AttibuteArg>,
 }

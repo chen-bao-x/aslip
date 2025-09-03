@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::{AttibuteArgList, FnArgInfo};
 use proc_macro::TokenStream;
 use quote::quote;
@@ -7,14 +9,12 @@ extern crate proc_macro;
 
 // 实例化插件注册表
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct FnInfo {
     pub func_name: String,
     pub func_args: Vec<FnArgInfo>,
     pub func_doc_comments: Vec<String>,
-
     pub attribute_args: AttibuteArgList,
-
     pub local_file_path: String,
     pub line: usize,
     pub colum: usize,

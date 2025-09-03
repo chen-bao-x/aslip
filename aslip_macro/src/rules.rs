@@ -61,9 +61,15 @@ pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> Option<syn:
 }
 
 /// rule 3. 命令的名称不能重复。
-pub fn rule_3(old: FnInfo, new: FnInfo, span: proc_macro2::Span) -> syn::Error {
-    let msg = format!("命令的名称不能重复");
-    return syn::Error::new(span, msg);
+pub fn rule_3(old: Option<FnInfo>, new: FnInfo, span: proc_macro2::Span) -> syn::Result<()> {
+    if let Some(old) = old {
+        let msg = format!("命令的名称不能重复");
+        return Err(syn::Error::new(span, msg));
+    }
+    // let msg = format!("命令的名称不能重复");
+    // return syn::Error::new(span, msg);
+
+    Ok(())
 }
 
 // toos functions。

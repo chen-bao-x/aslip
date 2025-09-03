@@ -1,6 +1,6 @@
+use aslip::command;
+use aslip::types::NumberInRange;
 use std::str::FromStr;
-
-use aslip::{aslip_macro::command_2, command, types::NumberInRange};
 
 // use aslip::*;
 
@@ -22,7 +22,7 @@ pub fn a3452() {
 }
 
 #[command]
-pub fn one_arg(s: String) {
+pub fn one_arg(path: String) {
     _ = String::from_str("s");
     // ::aslip::FromArgStr::from_arg_str(s)
 
@@ -30,11 +30,12 @@ pub fn one_arg(s: String) {
 
     println!(
         "one_arg  I'm one_arg, happy to see you.\n your input is: {:?}",
-        s
+        path
     );
 }
 
 #[command]
+/// 一句话说明
 pub fn two_arg(a: NumberInRange<0, 88>, b: String) {
     println!(
         "one_arg  I'm one_arg, happy to see you.\n your input is: {:?} {:?}",
@@ -57,24 +58,6 @@ pub fn collection_arg(first: u8, last: Vec<u8>) {
         first, last
     );
 }
-
-/// this is the one line descript?
-#[command_2(
-    about = "this is the one line descript?",
-    // asdfadsf = "",
-    // dsafadsfasdfdsaf = ""
-)]
-pub fn collectasdfion_arg(first: u8, last: Vec<u8>) {
-    println!(
-        "one_arg  I'm one_arg, happy to see you.\n your input is: {:?} {:?}",
-        first, last
-    );
-}
-
-use aslip::aslip_macro::command_3;
-
-#[command_3("hello")]
-pub fn colasdflection_arg() {}
 
 #[command(a = "asdfasdf", b = "adfasdfsadf")]
 /// 一句话说明。

@@ -1,5 +1,6 @@
 // lib.rs
 
+use owo_colors::OwoColorize;
 use quote::quote;
 use syn::FnArg;
 use syn::Ident;
@@ -130,12 +131,14 @@ impl FnArgInfo {
         //     return (_converted_variable_name.clone(), converted);
         // }
         {
+            // let expect_msg = format!("<{}>", self.arg_name).cyan().bold().to_string();
+            let expect_msg = format!("<{}>", self.arg_name);
             let ty = &self.type_name;
             let converted = format!(
                 r###"
  
             let {_converted_variable_name}: {ty} = {{
-                let {arg_str_variable_name}: &String = app._user_inputed_cmd_args.get({index}).unwrap();
+                let {arg_str_variable_name}: &String = app._user_inputed_cmd_args.get({index}).expect( "需要参数：{expect_msg}" );
                 let value: {ty} = aslip::single_type_converter::<{ty}>({arg_str_variable_name});
                 value
             }};
@@ -157,10 +160,13 @@ impl FnArgInfo {
             let ty = self.type_name.replace(" ", "");
             let inner_ty = get_inner_ty(&ty);
 
+            let a = format!("[{}...]", self.arg_name);
+            let expect_msg = format!("需要参数： {}", a);
+
             format!(
                 r###"
             let {_converted_variable_name}: {ty} = {{
-                let tail_args = app._user_inputed_cmd_args.get({index}..).unwrap();
+                let tail_args: &[String] = app._user_inputed_cmd_args.get({index}..).expect( "{expect_msg}");
                 let re: {ty} = aslip::vec_type_converter::<{inner_ty}>(tail_args);
 
                 re
@@ -198,11 +204,4 @@ pub fn get_inner_ty(s: &str) -> String {
     }
 
     return re;
-}
-
-#[test]
-fn adsfadsf() {
-    println!("{}", get_inner_ty("Vec<u8>"));
-    println!("{}", get_inner_ty("Vec<String>"));
-    println!("{}", get_inner_ty("Vec<Option<u8>>"));
 }

@@ -1,35 +1,25 @@
 //
 
-#[allow(dead_code)]
-const SDAFADSF: App = App {
-    _app_name: String::new(),
-    _description: "todo!()",
-    _user_inputed_cmd_name: None,
-    _user_inputed_cmd_args: vec![],
-};
-
+#[derive(Debug)]
 /// 保存一些命令行程序的信息。
 pub struct App<'a> {
     pub _app_name: String,
     pub _description: &'a str,
-
-    // TODO: app_document
-    // TODO: command_document
-    // TODO: argument description.
+    pub _version: &'a str,
 
     // state
     ///
     pub _user_inputed_cmd_name: Option<String>,
 
-    /// 如果没有传入参数，则等于 vec![]
+    /// 如果没有传入参数，则等于 vec![] ``
     pub _user_inputed_cmd_args: Vec<String>,
 }
 
 impl<'a> App<'a> {
-    pub fn new(descrip: &'a str) -> Self {
+    pub fn new() -> Self {
         let env_args: Vec<String> = std::env::args().collect();
 
-        // env_args.get(0); // the exe file path.
+        // let executable_file_path env_args.get(0);
         let user_inputed_cmd_name = env_args.get(1).map(|x| x.to_string()); // the sub_command name.
 
         let app_name = env_args
@@ -53,26 +43,28 @@ impl<'a> App<'a> {
         };
 
         return Self {
-            _description: descrip,
-            _user_inputed_cmd_args: user_inputed_cmd_args,
-            _user_inputed_cmd_name: user_inputed_cmd_name,
             _app_name: app_name,
+            _description: "",
+            _user_inputed_cmd_name: user_inputed_cmd_name,
+            _user_inputed_cmd_args: user_inputed_cmd_args,
+            _version: env!("CARGO_PKG_VERSION"),
         };
     }
 
-    pub fn run(&self) {
-        let Some(cmd_name) = &self._user_inputed_cmd_name else {
-            self.print_app_help();
-            return;
-        };
-
-        match cmd_name.as_str() {
-            "" => {
-                panic!("命令的名称不能时 空字符串 \"\"")
-            }
-            "no_arg_action" => {}
-            _ => {}
-        }
+    pub fn app_name(self, name: &str) -> Self {
+        let mut re = self;
+        re._app_name = name.to_string();
+        return re;
+    }
+    pub fn description(self, description: &'a str) -> Self {
+        let mut re = self;
+        re._description = description;
+        return re;
+    }
+    pub fn version(self, version: &'a str) -> Self {
+        let mut re = self;
+        re._version = version;
+        return re;
     }
 }
 

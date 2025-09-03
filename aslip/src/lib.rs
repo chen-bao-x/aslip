@@ -9,6 +9,8 @@ pub mod app;
 pub mod from_arg_sttr;
 pub mod types;
 
+mod custom_types;
+
 // TODO: 记得打开这三个选项。
 // pub use from_arg_sttr::*;
 // pub use types::*;

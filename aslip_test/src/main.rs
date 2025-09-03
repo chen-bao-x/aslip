@@ -1,22 +1,20 @@
 // # aslip_test
 
-mod asd;
-use asd::*;
-use aslip::command;
-
-#[command]
-fn new(name: String) {
-    println!("your input is: {}", name);
-}
+mod cmds;
+use cmds::*; // TODO: 让用户可以不输入 use cmds::* 也能正确访问到正确的函数。
 
 fn main() {
-    aslip::run!("");
+    let app = aslip::app::App::new()
+        .app_name("app name")
+        .description("description");
+
+    aslip::run!(app);
 
     // hand_write();
 }
 
 fn hand_write() {
-    let app = ::aslip::app::App::new("");
+    let app = ::aslip::app::App::new();
 
     let Some(cmd_name) = &app._user_inputed_cmd_name else {
         app.print_app_help();
@@ -25,7 +23,7 @@ fn hand_write() {
 
     match cmd_name.as_str() {
         "" => {
-            panic!("命令的名称不能时 空字符串 \"\"");
+            println!("命令的名称不能时 空字符串 \"\"");
         }
 
         _ => {
