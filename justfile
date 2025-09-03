@@ -1,4 +1,8 @@
 
+expand:
+    cargo expand -p aslip_test main >   "./target/expandes.rs"
+
+
 t1:
     RUSTFLAGS="-Awarnings" cargo run -q -p aslip_test -- 
 

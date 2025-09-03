@@ -31,8 +31,8 @@ pub use std::net::SocketAddrV4;
 pub use std::net::SocketAddrV6;
 pub use std::path::PathBuf;
 
-pub type NumberInRange<const START: isize, const END: isize> =
-    crate::custom_types::NumberInRange<START, END>;
+pub type NumberInRange<const MIN: isize, const MAX: isize> =
+    crate::custom_types::NumberInRange<MIN, MAX>;
 
 pub type OnOff = crate::custom_types::OnOff;
 

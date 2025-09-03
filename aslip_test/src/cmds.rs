@@ -12,18 +12,18 @@ pub fn no_arg_action() {
 
 #[command]
 pub fn a2() {
-    println!("a2 I'm no_arg_action, happy to see you.");
+    println!("a2 I'm a2, happy to see you.");
 }
 
 #[command]
 pub fn a3452() {
-    println!("a3452  I'm no_arg_action, happy to see you.");
+    println!("I'm a3452, happy to see you.");
 }
 
 #[command]
 pub fn one_arg(path: String) {
     println!(
-        "one_arg  I'm one_arg, happy to see you.\n your input is: {:?}",
+        "I'm one_arg(path: String), happy to see you.\n your input is: {:?}",
         path
     );
 }
@@ -32,7 +32,7 @@ pub fn one_arg(path: String) {
 /// 一句话说明
 pub fn two_arg(a: NumberInRange<0, 88>, b: String) {
     println!(
-        "one_arg  I'm one_arg, happy to see you.\n your input is: {:?} {:?}",
+        "I'm two_arg(a: NumberInRange<0, 88>, b: String), happy to see you.\n your input is: {:?} {:?}",
         a, b,
     );
 }

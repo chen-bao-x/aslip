@@ -4,7 +4,7 @@ use owo_colors::OwoColorize;
 pub struct ParseNumberInRangeError;
 
 #[derive(Debug, Clone)]
-pub struct NumberInRange<const START: isize, const END: isize> {
+pub struct NumberInRange<const MIN: isize, const MAX: isize> {
     pub value: f64,
 }
 

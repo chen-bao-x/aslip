@@ -88,7 +88,7 @@ impl FnArgInfo {
 
     fn auto_name(&self, index: usize) -> String {
         // format!("arg_{}_{}", index, self.type_name.to_lowercase())
-        format!("__arg_{}__", index,)
+        format!("__arg_{}", index,)
     }
 
     pub fn is_colection_type(&self) -> bool {
@@ -133,15 +133,22 @@ impl FnArgInfo {
             // let expect_msg = format!("<{}>", self.arg_name).cyan().bold().to_string();
             let expect_msg = format!("<{}>", self.arg_name);
             let ty = &self.type_name;
+            //     let converted = format!(
+            //         r###"
+
+            //     let {_converted_variable_name}: {ty} = {{
+            //         let {arg_str_variable_name}: &String = app._user_inputed_cmd_args.get({index}).expect( "需要参数：{expect_msg}" );
+            //         let value: {ty} = aslip::single_type_converter::<{ty}>({arg_str_variable_name});
+            //         value
+            //     }};
+            // "###
+            //     );
+
             let converted = format!(
                 r###"
  
-            let {_converted_variable_name}: {ty} = {{
-                let {arg_str_variable_name}: &String = app._user_inputed_cmd_args.get({index}).expect( "需要参数：{expect_msg}" );
-                let value: {ty} = aslip::single_type_converter::<{ty}>({arg_str_variable_name});
-                value
-            }};
-        "###
+            let {_converted_variable_name}: {ty} = aslip::single_type_converter::<{ty}>(&app, "{arg_name}", {index});
+        "###, arg_name = self.arg_name,
             );
 
             return (_converted_variable_name.clone(), converted);

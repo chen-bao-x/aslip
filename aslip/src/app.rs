@@ -43,6 +43,10 @@ pub struct App<'a> {
     pub _app_name: String,
     pub _about: &'a str,
     pub _version: &'a str,
+    pub _author: &'a str,
+
+    /// app help 时显示的信息。
+    pub _help: &'a str,
 
     pub _commands: Vec<CmdInfo<'a>>,
 
@@ -88,6 +92,8 @@ impl<'a> App<'a> {
             _user_inputed_cmd_args: user_inputed_cmd_args,
             _version: env!("CARGO_PKG_VERSION"),
             _commands: Vec::new(),
+            _author: "",
+            _help: "",
         };
     }
 
@@ -106,15 +112,30 @@ impl<'a> App<'a> {
         re._version = version;
         return re;
     }
+    pub fn author(self, author: &'a str) -> Self {
+        let mut re = self;
+        re._author = author;
+        return re;
+    }
+    pub fn help(self, help: &'a str) -> Self {
+        let mut re = self;
+        re._help = help;
+        return re;
+    }
 }
 
 impl<'a> App<'a> {
     pub fn print_app_help(&self) {
+        if !self._help.is_empty() {
+            return println!("{}", self._help);
+        }
+
         let app_name = self._app_name.style(CMD_NAME);
-        let description = &self._about;
+        let description = self._about;
+        let author = "\n".to_string() + self._author;
 
         let usage_marker = "Usage:".bold().green().to_string();
-        let usage = format!("    {app_name} [Command]");
+        let usage = format!("    {app_name} {}", "[Command]".style(ARG_TYPE));
 
         let commands_marker = "Commands:".bold().green().to_string();
 
@@ -123,9 +144,12 @@ impl<'a> App<'a> {
             for x in &self._commands {
                 re.push_str("    ");
                 re.push_str(x.name);
-                re.push_str(", ");
-                re.push_str(x.short_name);
-                
+
+                if !x.short_name.is_empty() {
+                    re.push_str(", ");
+                    re.push_str(x.short_name);
+                }
+
                 re.push_str("\t\t");
                 re.push_str(x.about);
                 re.push_str("\n");
@@ -136,7 +160,7 @@ impl<'a> App<'a> {
 
         let app_help_msg: String = format!(
             r###"
-{description}
+{description}{author}
 
 {usage_marker}
 {usage}
