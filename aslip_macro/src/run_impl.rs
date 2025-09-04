@@ -29,32 +29,59 @@ pub fn run_impl(input: TokenStream) -> TokenStream {
 
         {
              use aslip::types::*;
-             use ::aslip::from_arg_sttr::FromArgStr;
+
 
              #app
 
-             let Some(cmd_name) = &app._user_inputed_cmd_name else {
-                 app.print_app_help();
-                 return;
-             };
+             match &app._user_inputed_cmd_name {
+                None => {
+                     app.print_app_help();
+                }
+                Some(cmd_name)  => {
+
+                        // app cmd -h
+                        // app cmd --help
+                        if cmd_name == "-h" || cmd_name == "--help" {
+                            app.print_cmd_quick_help_for(cmd_name);
+
+                        } else {
+
+                            match cmd_name.as_str() {
+                                "" => panic!("命令的名称不能时 空字符串 \"\"") ,
+
+                                // TODO: 添加 help version 这两个命令的默认实现。
+                                #(#arms)*
 
 
-             match cmd_name.as_str() {
-                 "" => panic!("命令的名称不能时 空字符串 \"\"") ,
+                                x => {
+                                    match x {
+                                        "-h" | "--help" | "help" => {
+                                            app.print_app_help();
+                                        }
+                                        "-v" | "--version" | "verstion" => {
+                                            println!("app verions: \"0.1.2\"")
+                                        }
 
-    // TODO: 添加 help version 这两个命令的默认实现。
-                  #(#arms)*
+                                        v => {
+                                            ::aslip::tools::color_print::cprintln!("<red,bold>error:</> no such command: <cyan>{:?}</>", v);
 
-
-                 _ => println!("error: no such command: {:?}", cmd_name),
-
-             };
-
-         };
+                                        }
+                                    }
 
 
 
-         };
+                                },
+
+                            };
+                        }
+
+                }
+             }
+
+
+        };
+
+    };
 
     TokenStream::from(expanded_tokens)
 }
@@ -66,13 +93,13 @@ fn gen_app_var(input: TokenStream) -> proc_macro2::TokenStream {
 
     let store = data::COMMANDS.lock().expect(concat!(file!(), line!()));
 
-    let mut re: proc_macro2::TokenStream = quote! {};
+    let mut app_cmds_init: proc_macro2::TokenStream = quote! {};
 
     for (_key, fn_info) in store.iter() {
         let code = fn_info.gen_push_to_app_command_list();
 
-        re = quote! {
-            #re
+        app_cmds_init = quote! {
+            #app_cmds_init
             #code
 
         };
@@ -83,16 +110,21 @@ fn gen_app_var(input: TokenStream) -> proc_macro2::TokenStream {
             // 用户自己定义了一个 aslip::app::App, 则使用用户定义的 aslip::app::App.
             quote! {
 
-                let mut app = #variable_ident;
-                #re
-              }
+            //   let mut app = #variable_ident;
+                 let app: &mut App = &mut #variable_ident;
+                #app_cmds_init
+
+
+            }
         }
         Err(_) => {
             // 用户没有传入，则使用默认实现。
             quote! {
                 let mut app = ::aslip::app::App::new();
 
-                #re
+                #app_cmds_init
+
+
             }
         }
     };

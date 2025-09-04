@@ -1,4 +1,3 @@
-
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::ItemFn;
@@ -61,7 +60,3 @@ pub fn command_impl(_args: TokenStream, input: TokenStream) -> TokenStream {
         }
     }
 }
-
-fn adsfdasf_quick_help() {}
-
-fn adsfdasf_document() {}

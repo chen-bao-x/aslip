@@ -62,9 +62,10 @@ pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> syn::Result
     return Ok(());
 }
 
+#[allow(dead_code)]
 /// rule 3. 命令的名称不能重复。
-pub fn rule_3(old: Option<FnInfo>, new: FnInfo, span: proc_macro2::Span) -> syn::Result<()> {
-    if let Some(old) = old {
+pub fn rule_3(old: Option<FnInfo>, _new: FnInfo, span: proc_macro2::Span) -> syn::Result<()> {
+    if let Some(_) = old {
         let msg = format!("命令的名称不能重复");
         return Err(syn::Error::new(span, msg));
     }

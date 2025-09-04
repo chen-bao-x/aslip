@@ -8,12 +8,15 @@ extern crate proc_macro;
 // 实例化插件注册表
 
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct FnInfo {
     pub func_name: String,
     pub func_args: Vec<FnArgInfo>,
 
     pub func_doc_comments: Vec<String>,
     pub attribute_args: AttibuteArgList,
+
+    // span
     pub local_file_path: String,
     pub line: usize,
     pub colum: usize,
@@ -110,7 +113,7 @@ impl FnInfo {
         // 实参。
         let mut variables: Vec<String> = vec![];
 
-        let mut codes: Vec<String> = vec![];
+        let mut args_geter: Vec<String> = vec![];
         {
             for index in 0..self.func_args.len() {
                 let arg = self.func_args.get(index).expect(concat!(file!(), line!()));
@@ -127,7 +130,7 @@ impl FnInfo {
                 let re = arg.gen_type_converter_code(index);
 
                 variables.push(re.0);
-                codes.push(re.1);
+                args_geter.push(re.1);
             }
         }
 
@@ -141,7 +144,7 @@ impl FnInfo {
         }}  ,
         "###,
             func_name = self.func_name,
-            args_geter = codes.join("\n"),
+            args_geter = args_geter.join("\n"),
             args = variables.join(","),
         )
     }
@@ -190,6 +193,7 @@ impl FnInfo {
         return trait_bound_check_code;
     }
 
+    /// 生成 给 app 初始化 _commands 的代码。
     pub fn gen_push_to_app_command_list(&self) -> proc_macro2::TokenStream {
         let name: &str = {
             if let Some(arg) = self.attribute_args.get("name") {
@@ -211,12 +215,31 @@ impl FnInfo {
             if let Some(arg) = self.attribute_args.get("about") {
                 &arg.value
             } else {
-                &self.func_doc_comments.join("\n")
+                match self.func_doc_comments.first() {
+                    Some(val) => val,
+                    None => "",
+                }
             }
         };
 
+        let quick_help: &str = &self.func_doc_comments.join("\n");
+
+        let mut args = quote! {};
+        {
+            for x in &self.func_args {
+                let arg_name = &x.arg_name;
+                let type_name = &x.type_name;
+                args = quote! {
+                  #args   (#arg_name, #type_name) ,
+                };
+            }
+            args = quote! { &[ #args ] };
+        }
+        //           app._commands.insert( "one_arg", ::aslip::app::CmdInfo::new("one_arg", "", "", &[]), );
+
         return quote! {
-            app._commands.push(::aslip::app::CmdInfo::new(#name, #short_name, #about));
+            app._commands.push(
+                 ::aslip::app::CmdInfo::new(#name, #short_name,    ::aslip::tools::color_print::cstr!(#about) , #args,  ::aslip::tools::color_print::cstr!(#quick_help)  ));
         };
     }
 }

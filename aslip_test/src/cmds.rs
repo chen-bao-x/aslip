@@ -1,7 +1,6 @@
 use aslip::command;
 use aslip::types::NumberInRange;
 
-
 // use aslip::*;
 
 #[command]
@@ -20,6 +19,13 @@ pub fn a3452() {
     println!("I'm a3452, happy to see you.");
 }
 
+/// 只有一个一个参数 的命令。
+/// Usage: app one_arg <<PATH>>
+///
+/// <green!>Args</>:
+///     <<PATH>>:     the file path.
+/// Options:
+///     -h          print this message.
 #[command]
 pub fn one_arg(path: String) {
     println!(
@@ -38,6 +44,7 @@ pub fn two_arg(a: NumberInRange<0, 88>, b: String) {
 }
 
 #[command()]
+/// arg 9 about.
 pub fn arg_9(a1: u8, a2: u8, a3: u8, a4: u8, a5: u8, a6: u8, a7: u8, a8: u8, a9: Vec<u8>) {
     println!(
         "arg_9: happy to see you.\n your input is: {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?}",
@@ -50,9 +57,20 @@ pub fn collection_arg(first: u8, last: Vec<u8>) {
     println!("your input is: {:?} {:?}", first, last);
 }
 
-#[command(name = "renamed", short = "c", about="这是覆盖后的 about。")]
+#[command(name = "renamed", short = "c", about = "这是覆盖后的 about。")]
 /// 一句话说明。
 pub fn test_for_macro_args() {}
+
+/// 函数的文档注释的第一句话会用作 命令 的 <bold>一句话说明</bold> 打印到 cli 程序的帮助信息中。
+/// 整个帮助文档会被作为这个 命令 的 quick help 信息 ———— `app cmd -h` 时显示的信息。
+/// 还支持一些彩色标记语法哦： <red>red</red>  <bg:green>asdfadsf</>
+///
+#[command]
+pub fn cmd_doc_example() {}
+// #[command]
+// pub fn option_arg(o: Option<String>) {
+//     println!("a2 I'm a2, happy to see you.");
+// }
 
 // # error case: 这几个测试使用来测试 实现的 aslip_macro 是否能正常报错。
 

@@ -3,41 +3,113 @@ use std::str;
 use owo_colors::OwoColorize;
 
 /// 单个命令的相关信息。
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CmdInfo<'a> {
     pub name: &'a str,
     pub short_name: &'a str,
 
     /// 命令的一句话说明。
     pub about: &'a str,
+
+    pub quick_help: &'a str,
+
+    /// `fn f(a: String)` 中的 ("a", "String").
+    pub args: &'a [(&'a str, &'a str)],
 }
 
 impl<'a> CmdInfo<'a> {
-    pub fn usage(&self) -> String {
-        todo!("生成 usage 的功能还未完成。")
+    pub fn print_cmd_quick_help(&self, app_name: &str) -> String {
+        if !self.quick_help.is_empty() {
+            return self.quick_help.to_string();
+        }
+
+        let name = self.name.style(CMD_NAME);
+        let about = self.about;
+        let app_name = app_name.style(CMD_NAME);
+        let args = self.format_args().style(ARG_TYPE).to_string();
+
+        let usage = "Usage:".style(ARG_VALUE);
+
+        // let args_ = "Arguments: ".style(ARG_VALUE);
+
+        // let args_about = {
+        //     let mut re = String::new();
+
+        //     // for x in self.format_args().split_ascii_whitespace() {
+        //     for x in self.args {
+        //         re.push_str("    ");
+        //         re.push_str(&x.0.style(ARG_TYPE).to_string());
+        //         re.push_str("\t");
+        //         re.push_str(&x.1);
+        //         re.push_str("\t");
+        //         re.push_str("类型说明");
+        //         re.push_str("\n");
+        //     }
+
+        //     re
+        // };
+        format!(
+            r###"
+{about}
+
+{usage} 
+    {app_name} {name} {args}
+
+            "###
+        )
     }
 
-    pub const fn new(name: &'a str, short_name: &'a str, about: &'a str) -> Self {
+    pub const fn new(
+        name: &'a str,
+        short_name: &'a str,
+        about: &'a str,
+        args: &'a [(&'a str, &'a str)],
+        quick_help: &'a str,
+    ) -> Self {
         CmdInfo {
             name,
             short_name,
             about,
+            args: args,
+            quick_help: quick_help,
+        }
+    }
+
+    fn format_args(&self) -> String {
+        let mut re = String::new();
+        for x in self.args {
+            if is_colection_type(x.1) {
+                re.push_str("[");
+                re.push_str(x.0);
+                re.push_str("...");
+                re.push_str("] ");
+            } else {
+                re.push_str("<");
+                re.push_str(x.0);
+
+                re.push_str("> ");
+            }
+        }
+
+        return re;
+
+        fn is_colection_type(type_name: &str) -> bool {
+            let collection_types = ["Vec", "HashSet", "BTreeSet", "VecDeque"];
+
+            let type_name: &str = &type_name.replace(" ", "");
+
+            for x in collection_types {
+                if type_name.starts_with(x) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
 
-fn dsafadsf() {
-    const asdf: &[CmdInfo] = &[
-        CmdInfo {
-            name: "todo!()",
-            short_name: "",
-            about: "todo!()",
-        },
-        CmdInfo::new("name", "short_name", "about"),
-    ];
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// 保存一些命令行程序的信息。
 pub struct App<'a> {
     pub _app_name: String,
@@ -49,6 +121,7 @@ pub struct App<'a> {
     pub _help: &'a str,
 
     pub _commands: Vec<CmdInfo<'a>>,
+    // pub _commands: HashMap<&'a str, CmdInfo<'a>>,
 
     // state
     ///
@@ -59,6 +132,18 @@ pub struct App<'a> {
 }
 
 impl<'a> App<'a> {
+    pub const fn const_new() -> Self {
+        Self {
+            _app_name: String::new(),
+            _about: "",
+            _version: "",
+            _author: "",
+            _help: "",
+            _commands: Vec::new(),
+            _user_inputed_cmd_name: Some(String::new()),
+            _user_inputed_cmd_args: Vec::new(),
+        }
+    }
     pub fn new() -> Self {
         let env_args: Vec<String> = std::env::args().collect();
 
@@ -91,6 +176,7 @@ impl<'a> App<'a> {
             _user_inputed_cmd_name: user_inputed_cmd_name,
             _user_inputed_cmd_args: user_inputed_cmd_args,
             _version: env!("CARGO_PKG_VERSION"),
+            // _commands: Vec::new(),
             _commands: Vec::new(),
             _author: "",
             _help: "",
@@ -102,29 +188,48 @@ impl<'a> App<'a> {
         re._app_name = name.to_string();
         return re;
     }
-    pub fn about(self, description: &'a str) -> Self {
+    pub const fn about(self, description: &'a str) -> Self {
         let mut re = self;
         re._about = description;
         return re;
     }
-    pub fn version(self, version: &'a str) -> Self {
+    pub const fn version(self, version: &'a str) -> Self {
         let mut re = self;
         re._version = version;
         return re;
     }
-    pub fn author(self, author: &'a str) -> Self {
+    pub const fn author(self, author: &'a str) -> Self {
         let mut re = self;
         re._author = author;
         return re;
     }
-    pub fn help(self, help: &'a str) -> Self {
+    pub const fn help(self, help: &'a str) -> Self {
         let mut re = self;
         re._help = help;
         return re;
     }
+
+    /// app cmd -h 时调用的函数。
+    pub fn print_cmd_quick_help_for(&self, cmd_name: &str) {
+        let re = self
+            ._commands
+            .iter()
+            .find(|x| x.name == cmd_name || x.short_name == cmd_name);
+
+        // match self._commands.get(cmd_name) {
+        match re {
+            Some(info) => {
+                println!("{}", info.print_cmd_quick_help(&self._app_name));
+            }
+            None => {
+                eprintln!("Unkone Command: {cmd_name}")
+            }
+        };
+    }
 }
 
 impl<'a> App<'a> {
+    /// 当用户没有传入任何 命令 时， 会执行这个函数。
     pub fn print_app_help(&self) {
         if !self._help.is_empty() {
             return println!("{}", self._help);
@@ -141,7 +246,9 @@ impl<'a> App<'a> {
 
         let command_list = {
             let mut re = String::new();
-            for x in &self._commands {
+            for x in self._commands.iter() {
+                // let x = kv_pair.1;
+
                 re.push_str("    ");
                 re.push_str(x.name);
 

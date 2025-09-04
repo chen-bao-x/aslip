@@ -3,6 +3,7 @@ use owo_colors::OwoColorize;
 #[derive(Debug)]
 pub struct ParseNumberInRangeError;
 
+/// 一个数字。
 #[derive(Debug, Clone)]
 pub struct NumberInRange<const MIN: isize, const MAX: isize> {
     pub value: f64,

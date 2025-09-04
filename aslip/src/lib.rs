@@ -16,6 +16,19 @@ pub use from_arg_sttr::*;
 // pub use types::*;
 // pub use app::*;
 
+/// aslip 用到的一些 crates。
+pub mod tools {
+    pub use color_print; // https://crates.io/crates/color-print
+    pub use owo_colors; // https://crates.io/crates/owo-colors
+}
+#[test]
+fn dsafadsf() {
+    let sadf = color_print::cstr!(
+        "   函数的文档注释的第一句话会用作 命令 的 <bold>一句话说明</bold> 打印到 cli 程序的帮助信息中。"
+    );
+    println!("{sadf }");
+}
+
 // // maybe never !
 // pub fn single_type_converter<T: from_arg_sttr::FromArgStr>(arg: &String) -> T {
 //     use owo_colors::OwoColorize;
@@ -37,7 +50,11 @@ pub use from_arg_sttr::*;
 //     };
 // }
 // maybe never !
-pub fn single_type_converter<T: from_arg_sttr::FromArgStr>(app: &app::App, arg_name: &str, arg_index:usize) -> T {
+pub  fn single_type_converter<T: from_arg_sttr::FromArgStr>(
+    app: &app::App,
+    arg_name: &str,
+    arg_index: usize,
+) -> T {
     let arg: &String = app
         ._user_inputed_cmd_args
         .get(arg_index)

@@ -11,7 +11,7 @@ extern crate proc_macro;
 pub struct FnArgInfo {
     pub arg_name: String,
     pub type_name: String,
-    pub fn_arg_doc: Vec<String>,
+    // pub fn_arg_doc: Vec<String>,
 }
 
 impl FnArgInfo {
@@ -31,34 +31,35 @@ impl FnArgInfo {
             // 提取参数类型
             let arg_type = &pat_type.ty;
 
-            let doc = {
-                pat_type
-                    .attrs
-                    .iter()
-                    .filter_map(|attr| {
-                        if attr.path().is_ident("about") {
-                            // 解析 #[about = "..."]
-                            if let syn::Meta::NameValue(meta_nv) = &attr.meta {
-                                if let syn::Expr::Lit(expr_lit) = &meta_nv.value {
-                                    if let syn::Lit::Str(litstr) = &expr_lit.lit {
-                                        return Some(litstr.value());
-                                    }
-                                }
-                            }
-                        }
+            // let doc = {
+            //     pat_type
+            //         .attrs
+            //         .iter()
+            //         .filter_map(|attr| {
+            //             if attr.path().is_ident("about") {
+            //                 // 解析 #[about = "..."]
+            //                 if let syn::Meta::NameValue(meta_nv) = &attr.meta {
+            //                     if let syn::Expr::Lit(expr_lit) = &meta_nv.value {
+            //                         if let syn::Lit::Str(litstr) = &expr_lit.lit {
+            //                             return Some(litstr.value());
+            //                         }
+            //                     }
+            //                 }
+            //             }
 
-                        None
-                    })
-                    .collect::<Vec<String>>()
-            };
+            //             None
+            //         })
+            //         .collect::<Vec<String>>()
+            // };
 
             return Some(FnArgInfo {
-                arg_name: arg_name.to_string(),
+                arg_name: arg_name.to_string() ,
                 type_name: quote!(#arg_type)
                     .to_string()
                     .trim_matches(|x| x == ' ')
+                    .replace(" ", "")
                     .to_string(),
-                fn_arg_doc: doc,
+                // fn_arg_doc: doc,
             });
         }
 
@@ -131,7 +132,7 @@ impl FnArgInfo {
         // }
         {
             // let expect_msg = format!("<{}>", self.arg_name).cyan().bold().to_string();
-            let expect_msg = format!("<{}>", self.arg_name);
+            // let expect_msg = format!("<{}>", self.arg_name);
             let ty = &self.type_name;
             //     let converted = format!(
             //         r###"
@@ -148,7 +149,8 @@ impl FnArgInfo {
                 r###"
  
             let {_converted_variable_name}: {ty} = aslip::single_type_converter::<{ty}>(&app, "{arg_name}", {index});
-        "###, arg_name = self.arg_name,
+        "###,
+                arg_name = self.arg_name,
             );
 
             return (_converted_variable_name.clone(), converted);
