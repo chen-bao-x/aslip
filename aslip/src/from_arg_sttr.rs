@@ -4,13 +4,15 @@ use std::str::FromStr;
 
 // -=-----------------------------------------------------------------------------------
 
-/// 所有使用 `#[command]` 标记的函数的参数类型都需要实现了 `::aslip::from_arg_sttr::FromArgStr` trait.
-/// # Example:
+/// ## 所有使用 `#[command]` 标记的函数的参数类型都需要实现 `FromArgStr` trait.
+/// #### Example:
 /// ```rust
 /// use aslip::FromArgStr;
+/// use aslip::from_arg_sttr::ParseError;
+/// 
 /// struct CustomType {}
 /// impl FromArgStr for CustomType {
-///     fn from_arg_str(s: &str) -> Result<Self, aslip::ParseError> {
+///     fn from_arg_str(s: &str) -> Result<Self, ParseError> {
 ///          Ok(Self{})
 ///     }
 /// }

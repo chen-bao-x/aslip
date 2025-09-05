@@ -1,13 +1,15 @@
+use std::str::FromStr;
+
 use crate::from_arg_sttr::FromArgStr;
 use crate::from_arg_sttr::ParseError;
+use color_print::cformat;
 use owo_colors::OwoColorize;
 
 /// 一个数字。
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct NumberInRange<const MIN: isize, const MAX: isize> {
     pub value: f64,
 }
-
 impl<const MIN: isize, const MAX: isize> FromArgStr for NumberInRange<MIN, MAX> {
     fn from_arg_str(s: &str) -> Result<Self, ParseError> {
         let re = <f64 as ::core::str::FromStr>::from_str(s).map_err(|_e| {
@@ -62,7 +64,6 @@ pub enum OnOff {
     On,
     Off,
 }
-
 impl crate::from_arg_sttr::FromArgStr for OnOff {
     fn from_arg_str(s: &str) -> Result<Self, ParseError> {
         return match s {
@@ -79,5 +80,67 @@ impl crate::from_arg_sttr::FromArgStr for OnOff {
                 ),
             }),
         };
+    }
+}
+
+/// file path.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct FilePath {
+    path: std::path::PathBuf,
+}
+impl FromArgStr for FilePath {
+    fn from_arg_str(s: &str) -> Result<Self, ParseError> {
+        std::path::PathBuf::from_str(s)
+            .map_err(|_e| ParseError {
+                err_msg: cformat!(
+                    "将 <green,bold>{}</> 转换为 <cyan,bold>{}</> 时出错.",
+                    s,
+                    "FilePath",
+                ),
+
+                tips: "".to_string(),
+            })
+            .and_then(|x| {
+                if x.is_file() {
+                    Ok(Self { path: x })
+                } else {
+                    Err(ParseError {
+                        err_msg: cformat!("{} 不是文件。", x.to_str().unwrap_or_default(),),
+
+                        tips: "示例: /path/to/file.txt".to_string(),
+                    })
+                }
+            })
+    }
+}
+
+/// folder path.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct FolderPath {
+    path: std::path::PathBuf,
+}
+impl FromArgStr for FolderPath {
+    fn from_arg_str(s: &str) -> Result<Self, ParseError> {
+        std::path::PathBuf::from_str(s)
+            .map_err(|_e| ParseError {
+                err_msg: cformat!(
+                    "将 <green,bold>{}</> 转换为 <cyan,bold>{}</> 时出错.",
+                    s,
+                    "FolderPath",
+                ),
+
+                tips: "".to_string(),
+            })
+            .and_then(|x| {
+                if x.is_dir() {
+                    Ok(Self { path: x })
+                } else {
+                    Err(ParseError {
+                        err_msg: cformat!("{} 不是文件。", x.to_str().unwrap_or_default(),),
+
+                        tips: "示例: /path/to/folder/".to_string(),
+                    })
+                }
+            })
     }
 }

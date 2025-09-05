@@ -1,9 +1,20 @@
-///! 这里的类型都可一用作 #[command] 标记的函数的参数。
+
+use crate::FromArgStr;
+#[allow(type_alias_bounds)]
+pub type Vec<T: FromArgStr> = ::std::vec::Vec<T>;
 pub use String;
 pub use std::path::PathBuf;
 
-#[allow(type_alias_bounds)]
-pub type Vec<T: FromArgStr> = ::std::vec::Vec<T>;
+pub type TEXT = String;
+/// file path or folder path.
+pub type PATH = std::path::PathBuf;
+pub type NUMBER = f64;
+
+pub use crate::custom_types::FilePath;
+pub use crate::custom_types::FolderPath;
+
+pub use crate::custom_types::NumberInRange;
+pub use crate::custom_types::OnOff;
 
 pub use bool;
 pub use char;
@@ -30,10 +41,6 @@ pub use std::net::Ipv6Addr;
 pub use std::net::SocketAddr;
 pub use std::net::SocketAddrV4;
 pub use std::net::SocketAddrV6;
-
-use crate::FromArgStr;
-pub use crate::custom_types::NumberInRange;
-pub use crate::custom_types::OnOff;
 
 // email
 // url

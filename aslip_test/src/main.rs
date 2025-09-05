@@ -4,7 +4,7 @@ mod aa;
 mod cmds;
 use aa::*;
 use aslip::app::App;
-use cmds::*;
+use cmds::ok_case::*;
 
 fn main() {
     let mut dsfdsaf = aslip::app::App::new().about("description").author("author");

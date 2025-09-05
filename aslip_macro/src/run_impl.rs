@@ -12,10 +12,26 @@ pub fn run_impl(input: TokenStream) -> TokenStream {
         let mut re: Vec<syn::Arm> = vec![];
 
         for (_key, fn_info) in store.iter() {
-            let code = fn_info.gen_case_code();
+            {
+                let code = fn_info.gen_case_code();
 
-            let a = syn::parse_str::<syn::Arm>(&code).expect(&(code + concat!(file!(), line!())));
-            re.push(a);
+                let a = syn::parse_str::<syn::Arm>(&code).expect(
+                    &("解析 syn::Arm 时出错：".to_string() + concat!(":", file!(), ":", line!())),
+                );
+                re.push(a);
+            }
+            {
+                let code = fn_info.gen_short_name_case_code();
+
+                if !code.is_empty() {
+                    let a = syn::parse_str::<syn::Arm>(&code).expect(
+                        &("解析 syn::Arm 时出错：".to_string()
+                            + &code
+                            + concat!(":", file!(), ":", line!())),
+                    );
+                    re.push(a);
+                }
+            }
         }
 
         re

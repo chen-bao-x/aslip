@@ -152,6 +152,52 @@ impl FnInfo {
 
                 {func_name}({args});
                 }}  ,
+
+
+"###,
+            func_name = self.func_name,
+            args_geter = args_geter.join("\n"),
+            args = variables.join(","),
+        );
+    }
+
+    // "one_arg" => {
+    //      ...
+    // },
+    pub fn gen_short_name_case_code(&self) -> String {
+        // 实参。
+        let mut variables: Vec<String> = vec![];
+
+        let mut args_geter: Vec<String> = vec![];
+        {
+            for index in 0..self.func_args.len() {
+                let arg = self.func_args.get(index).expect(concat!(file!(), line!()));
+
+                let re = arg.gen_type_converter_code(index);
+
+                variables.push(re.0);
+                args_geter.push(re.1);
+            }
+        }
+
+        let short_name = {
+            match self.attr_args.get("short") {
+                Some(arg) => &arg.value,
+                None => "",
+            }
+        };
+
+        return format!(
+            r###"
+            "{short_name}" => 
+                    {{
+                    
+                {args_geter}
+
+                {func_name}({args});
+                }}  ,
+
+
 "###,
             func_name = self.func_name,
             args_geter = args_geter.join("\n"),
