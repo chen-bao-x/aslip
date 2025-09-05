@@ -9,26 +9,6 @@ pub struct NumberInRange<const MIN: isize, const MAX: isize> {
     pub value: f64,
 }
 
-impl<const START: isize, const END: isize> ::core::str::FromStr for NumberInRange<START, END> {
-    type Err = ParseNumberInRangeError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let re = f64::from_str(s).map_err(|_| ParseNumberInRangeError {})?;
-
-        let s = START as f64;
-        let e = END as f64;
-
-        if re >= s && re <= e {
-            // ok
-
-            return Ok(Self { value: re });
-        } else {
-            // err
-            return Err(ParseNumberInRangeError {});
-        }
-    }
-}
-
 impl<const START: isize, const END: isize> crate::from_arg_sttr::FromArgStr
     for NumberInRange<START, END>
 {

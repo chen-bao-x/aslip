@@ -53,7 +53,7 @@ impl FnArgInfo {
             // };
 
             return Some(FnArgInfo {
-                arg_name: arg_name.to_string() ,
+                arg_name: arg_name.to_string(),
                 type_name: quote!(#arg_type)
                     .to_string()
                     .trim_matches(|x| x == ' ')
@@ -110,40 +110,11 @@ impl FnArgInfo {
         // __arg_0__
         let arg_str_variable_name = self.auto_name(index);
 
-        // __arg_0___converted
+        // __arg_0_converted
         let _converted_variable_name = arg_str_variable_name.clone() + "_converted";
 
-        // {
-        //     let ty = &self.type_name;
-        //     let converted = format!(
-        //         r###"
-        // let {_converted_variable_name}: {ty} = {{
-        //     let {arg_str_variable_name} = app._user_inputed_cmd_args.get({index}).unwrap().clone();
-
-        //     <{ty} as ::aslip::from_arg_sttr::FromArgStr>::from_arg_str(&{arg_str_variable_name})
-        //         .unwrap()
-        //         .clone()
-        // }};
-
-        // "###
-        //     );
-
-        //     return (_converted_variable_name.clone(), converted);
-        // }
         {
-            // let expect_msg = format!("<{}>", self.arg_name).cyan().bold().to_string();
-            // let expect_msg = format!("<{}>", self.arg_name);
             let ty = &self.type_name;
-            //     let converted = format!(
-            //         r###"
-
-            //     let {_converted_variable_name}: {ty} = {{
-            //         let {arg_str_variable_name}: &String = app._user_inputed_cmd_args.get({index}).expect( "需要参数：{expect_msg}" );
-            //         let value: {ty} = aslip::single_type_converter::<{ty}>({arg_str_variable_name});
-            //         value
-            //     }};
-            // "###
-            //     );
 
             let converted = format!(
                 r###"

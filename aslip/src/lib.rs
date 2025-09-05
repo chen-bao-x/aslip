@@ -1,6 +1,5 @@
-///! aslip::types:: 中的每个类型都可以作为 `#[command` 标记的函数的参数。
-
 ///! # aslip
+///! aslip::types:: 中的每个类型都可以作为 `#[command]` 标记的函数的参数。
 pub use aslip_macro;
 pub use aslip_macro::command;
 pub use aslip_macro::run;
@@ -50,7 +49,7 @@ fn dsafadsf() {
 //     };
 // }
 // maybe never !
-pub  fn single_type_converter<T: from_arg_sttr::FromArgStr>(
+pub fn single_type_converter<T: from_arg_sttr::FromArgStr>(
     app: &app::App,
     arg_name: &str,
     arg_index: usize,
@@ -58,22 +57,56 @@ pub  fn single_type_converter<T: from_arg_sttr::FromArgStr>(
     let arg: &String = app
         ._user_inputed_cmd_args
         .get(arg_index)
-        .expect(&format!("需要参数：<{}>", arg_name));
-    // arg: &String
+        .expect(&format!("需要参数：<{arg_name}>"));
 
     use owo_colors::OwoColorize;
 
     let asdf = <T as from_arg_sttr::FromArgStr>::from_arg_str(arg);
+
     match asdf {
         Ok(val) => return val,
         Err(e) => {
-            eprintln!(
-                "{}{}: 将 {:?} 转换为 {} 出错。",
-                "error: ".red().bold(),
-                std::any::type_name_of_val(&e).red(),
-                arg.green(),
-                std::any::type_name::<T>().cyan().bold(),
-            );
+            eprintln!("{err_marker}: ", err_marker = "error: ".red().bold(),);
+
+            // eprintln!(
+            //     "{}{}: 将 {:?} 转换为 {} 出错。",
+            //     "error: ".red().bold(),
+            //     std::any::type_name_of_val(&e).red(),
+            //     arg.green(),
+            //     std::any::type_name::<T>().cyan().bold(),
+            // );
+
+            std::process::exit(1);
+        }
+    };
+}
+
+pub fn single_type_converter_v3<T: from_arg_sttr::FromArgStr_v3>(
+    app: &app::App,
+    arg_name: &str,
+    arg_index: usize,
+) -> T {
+    let arg: &String = app
+        ._user_inputed_cmd_args
+        .get(arg_index)
+        .expect(&format!("需要参数：<{arg_name}>"));
+
+    use owo_colors::OwoColorize;
+
+    let asdf = <T as from_arg_sttr::FromArgStr_v3>::from_arg_str(arg);
+
+    match asdf {
+        Ok(val) => return val,
+        Err(e) => {
+            eprintln!("{err_marker}: {e}", err_marker = "error: ".red().bold(),);
+
+            // eprintln!(
+            //     "{}{}: 将 {:?} 转换为 {} 出错。",
+            //     "error: ".red().bold(),
+            //     std::any::type_name_of_val(&e).red(),
+            //     arg.green(),
+            //     std::any::type_name::<T>().cyan().bold(),
+            // );
 
             std::process::exit(1);
         }

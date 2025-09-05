@@ -1,7 +1,7 @@
 /// 用来检查某个类型是否实现了 `FromArgStr` trait.
 /// 主要是给 aslip_macro::command 用的。
 /// # Example:
-/// ```rust, ignore
+/// ```rust,ignore
 /// use aslip::from_arg_sttr::from_arg_str_trait_bound_check;
 /// const _: () = { from_arg_str_trait_bound_check::<u8>() }; // 生成一个空的 const 用来触发编译时检查
 ///
@@ -10,7 +10,7 @@
 /// // the trait bound `CustomType: FromArgStr` is not satisfied the following other types implement trait `FromArgStr`
 /// ```
 ///
-pub const fn from_arg_str_trait_bound_check<_String: FromArgStr>() {}
+pub const fn from_arg_str_trait_bound_check<T: FromArgStr>() {}
 
 /// 所有使用 `#[command]` 标记的函数的参数类型都需要实现了 `::aslip::from_arg_sttr::FromArgStr` trait.
 /// # Example:
@@ -26,16 +26,8 @@ pub const fn from_arg_str_trait_bound_check<_String: FromArgStr>() {}
 /// ```
 ///
 pub trait FromArgStr: Sized {
-    /// The associated error which can be returned from parsing.
     type Err;
 
-    /// Parses a string `s` to return a value of this type.
-    ///
-    /// If parsing succeeds, return the value inside [`Ok`], otherwise
-    /// when the string is ill-formatted return an error specific to the
-    /// inside [`Err`]. The error type is specific to the implementation of the trait.
-    ///
-    /// # Examples
     fn from_arg_str(s: &str) -> Result<Self, Self::Err>;
 }
 
@@ -301,3 +293,105 @@ impl<T: FromArgStr> FromArgStr for std::cell::Cell<T> {
 }
 
 use std::str::FromStr;
+
+use color_print::cformat;
+
+// -=-----------------------------------------------------------------------------------
+
+#[derive(Debug, Clone)]
+pub struct ParseError {
+    /// 提示为什么出错。
+    err_msg: String,
+
+    /// 提示如何填写正确的参数。
+    tips: String,
+}
+impl std::fmt::Display for ParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}\n{}", self.err_msg, self.tips)
+    }
+}
+
+impl ParseError {
+    pub const fn empty() -> Self {
+        Self {
+            err_msg: String::new(),
+            tips: String::new(),
+        }
+    }
+}
+
+pub trait FromArgStr_v3: Sized {
+    fn from_arg_str(s: &str) -> Result<Self, ParseError>;
+}
+
+impl FromArgStr_v3 for String {
+    fn from_arg_str(s: &str) -> Result<Self, ParseError> {
+        String::from_str(s).map_err(|e| ParseError {
+            err_msg: cformat!(
+                "将 <green,bold>{}</> 转换为 <cyan,bold>{}</> 是出错。",
+                s,
+                "String"
+            ),
+
+            tips: "".to_string(),
+        })
+    }
+}
+
+// 代码生成。
+#[test]
+fn starter() {
+    let arr = [
+        "String",
+        "bool",
+        "char",
+        "i8",
+        "u8",
+        "i16",
+        "u16",
+        "i32",
+        "u32",
+        "f32",
+        "i64",
+        "u64",
+        "f64",
+        "i128",
+        "u128",
+        "isize",
+        "usize",
+        "std::ffi::CString",
+        "std::ffi::OsString",
+        "std::net::IpAddr",
+        "std::net::Ipv4Addr",
+        "std::net::Ipv6Addr",
+        "std::net::SocketAddr",
+        "std::net::SocketAddrV4",
+        "std::net::SocketAddrV6",
+        "std::path::PathBuf",
+    ];
+
+    let new_arr = arr.map(code_gen);
+}
+
+fn code_gen(ty_name: &str) {
+    println!(
+        r###"
+
+impl FromArgStr_v3 for {ty_name} {{
+    fn from_arg_str(s: &str) -> Result<Self, ParseError> {{
+        {ty_name}::from_str(s).map_err(|e| ParseError {{
+            err_msg: cformat!(
+                "将 <green,bold>{{}}</> 转换为 <cyan,bold>{{}}</> 时出错：{{}}",
+                s,
+                "{ty_name}",std::any::type_name_of_val(&e)
+            ),
+
+            tips: "".to_string(),
+        }})
+    }}
+}}
+
+"###,
+    )
+}

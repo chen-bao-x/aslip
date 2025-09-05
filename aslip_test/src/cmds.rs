@@ -19,15 +19,16 @@ pub fn a3452() {
     println!("I'm a3452, happy to see you.");
 }
 
-/// 只有一个一个参数 的命令。
-/// Usage: app one_arg <<PATH>>
+/// 只有一个参数 的命令。
+///
+/// <green,bold>Usage</>: <cyan,bold>app</> <cyan,bold>one_arg</> <green,bold><<PATH>></>
 ///
 /// <green!>Args</>:
 ///     <<PATH>>:     the file path.
 /// Options:
 ///     -h          print this message.
 #[command]
-pub fn one_arg(path: String) {
+pub fn one_arg(path: usize) {
     println!(
         "I'm one_arg(path: String), happy to see you.\n your input is: {:?}",
         path
@@ -35,7 +36,7 @@ pub fn one_arg(path: String) {
 }
 
 #[command]
-/// 一句话说明
+/// 一句话说明。
 pub fn two_arg(a: NumberInRange<0, 88>, b: String) {
     println!(
         "I'm two_arg(a: NumberInRange<0, 88>, b: String), happy to see you.\n your input is: {:?} {:?}",
@@ -57,7 +58,7 @@ pub fn collection_arg(first: u8, last: Vec<u8>) {
     println!("your input is: {:?} {:?}", first, last);
 }
 
-#[command(name = "renamed", short = "c", about = "这是覆盖后的 about。")]
+#[command(name = "renamed", short = "c")]
 /// 一句话说明。
 pub fn test_for_macro_args() {}
 
@@ -67,6 +68,12 @@ pub fn test_for_macro_args() {}
 ///
 #[command]
 pub fn cmd_doc_example() {}
+
+#[command(name = "-h")]
+pub fn asdfadsfcmd_doc_example() {
+    println!("this is my own help command.")
+}
+
 // #[command]
 // pub fn option_arg(o: Option<String>) {
 //     println!("a2 I'm a2, happy to see you.");
@@ -86,7 +93,7 @@ pub fn cmd_doc_example() {}
 
 // /// 测试 rule_3：
 // #[command]
-// pub fn no_arg_action() {
+// pub fn no_arg_adction() {
 //     println!("{}", module_path!());
 //     println!("I'm no_arg_action, happy to see you.");
 // }

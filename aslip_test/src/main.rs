@@ -31,11 +31,8 @@ fn main() {
 
 //     match cmd_name.as_str() {
 //         "" => {
-//             let sadf = &mut dsfasdf._user_inputed_cmd_args;
-//             sadf.pop();
-
-//             let sadf = dsfasdf._user_inputed_cmd_args;
-
+            
+      
 //             println!("命令的名称不能时 空字符串 \"\"");
 //         }
 

@@ -27,39 +27,40 @@ pub fn run_impl(input: TokenStream) -> TokenStream {
     let expanded_tokens = quote! {
 
 
-        {
+         'block:  {
              use aslip::types::*;
 
 
              #app
 
-             match &app._user_inputed_cmd_name {
+     match &app._user_inputed_cmd_name {
                 None => {
                      app.print_app_help();
                 }
-                Some(cmd_name)  => {
+                     Some(cmd_name)  => {
 
                         // app cmd -h
                         // app cmd --help
-                        if cmd_name == "-h" || cmd_name == "--help" {
-                            app.print_cmd_quick_help_for(cmd_name);
-
-                        } else {
+                        if let Some(first_arg) = app._user_inputed_cmd_args.first() {
+                            if first_arg == "-h" || first_arg == "--help" {
+                                app.print_cmd_quick_help_for(cmd_name);
+                                break 'block;
+                            }
+                        };
 
                             match cmd_name.as_str() {
                                 "" => panic!("命令的名称不能时 空字符串 \"\"") ,
 
-                                // TODO: 添加 help version 这两个命令的默认实现。
                                 #(#arms)*
-
 
                                 x => {
                                     match x {
                                         "-h" | "--help" | "help" => {
                                             app.print_app_help();
+
                                         }
-                                        "-v" | "--version" | "verstion" => {
-                                            println!("app verions: \"0.1.2\"")
+                                        "-v" | "--version" | "version" => {
+                                             app.print_app_version();
                                         }
 
                                         v => {
@@ -68,14 +69,12 @@ pub fn run_impl(input: TokenStream) -> TokenStream {
                                         }
                                     }
 
-
-
                                 },
 
                             };
-                        }
 
-                }
+
+                    }
              }
 
 

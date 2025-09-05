@@ -19,7 +19,10 @@ pub struct CmdInfo<'a> {
 
 impl<'a> CmdInfo<'a> {
     pub fn print_cmd_quick_help(&self, app_name: &str) -> String {
-        if !self.quick_help.is_empty() {
+        let quick_help_lines_count = self.quick_help.split(|x| x == '\n').count();
+
+        // 有 quick_help 且 quick_help 有超过一行。
+        if !self.quick_help.is_empty() && quick_help_lines_count > 1 {
             return self.quick_help.to_string();
         }
 
@@ -226,9 +229,7 @@ impl<'a> App<'a> {
             }
         };
     }
-}
 
-impl<'a> App<'a> {
     /// 当用户没有传入任何 命令 时， 会执行这个函数。
     pub fn print_app_help(&self) {
         if !self._help.is_empty() {
@@ -283,9 +284,17 @@ Use "{app_name} {h} {c}" for more information about a command.
 
         println!("{}", app_help_msg);
     }
+
+    pub fn print_app_version(&self) {
+        println!(
+            "{}: {}",
+            self._app_name,
+            format!("{:?}", self._version).bright_green()
+        )
+    }
 }
 
-const ERR_MARKER: owo_colors::Style = owo_colors::style().bold().red();
+// const ERR_MARKER: owo_colors::Style = owo_colors::style().bold().red();
 const CMD_NAME: owo_colors::Style = owo_colors::style().bold().cyan();
 const ARG_TYPE: owo_colors::Style = owo_colors::style().cyan();
 const ARG_VALUE: owo_colors::Style = owo_colors::style().bold().green();

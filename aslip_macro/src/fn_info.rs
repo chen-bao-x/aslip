@@ -14,7 +14,9 @@ pub struct FnInfo {
     pub func_args: Vec<FnArgInfo>,
 
     pub func_doc_comments: Vec<String>,
-    pub attribute_args: AttibuteArgList,
+
+    /// macro attribute args.
+    pub attr_args: AttibuteArgList,
 
     // span
     pub local_file_path: String,
@@ -74,7 +76,7 @@ impl FnInfo {
             local_file_path: func_in_path,
             line: func_span.line(),
             colum: func_span.column(),
-            attribute_args: attribute_arg_list,
+            attr_args: attribute_arg_list,
         };
 
         return Ok(fn_info);
@@ -134,19 +136,27 @@ impl FnInfo {
             }
         }
 
-        format!(
-            r###"
-    "{func_name}" => 
-            {{
-        {args_geter}
+        let pattern = {
+            match self.attr_args.get("name") {
+                Some(arg) => &arg.value,
+                None => &self.func_name,
+            }
+        };
 
-        {func_name}({args});
-        }}  ,
-        "###,
+        return format!(
+            r###"
+            "{pattern}" => 
+                    {{
+                    
+                {args_geter}
+
+                {func_name}({args});
+                }}  ,
+"###,
             func_name = self.func_name,
             args_geter = args_geter.join("\n"),
             args = variables.join(","),
-        )
+        );
     }
 
     /// 生成 trait bound check 代码, 大概长这样。
@@ -196,7 +206,7 @@ impl FnInfo {
     /// 生成 给 app 初始化 _commands 的代码。
     pub fn gen_push_to_app_command_list(&self) -> proc_macro2::TokenStream {
         let name: &str = {
-            if let Some(arg) = self.attribute_args.get("name") {
+            if let Some(arg) = self.attr_args.get("name") {
                 &arg.value
             } else {
                 &self.func_name
@@ -204,7 +214,7 @@ impl FnInfo {
         };
 
         let short_name: &str = {
-            if let Some(arg) = self.attribute_args.get("short") {
+            if let Some(arg) = self.attr_args.get("short") {
                 &arg.value
             } else {
                 ""
@@ -212,9 +222,10 @@ impl FnInfo {
         };
 
         let about: &str = {
-            if let Some(arg) = self.attribute_args.get("about") {
+            if let Some(arg) = self.attr_args.get("about") {
                 &arg.value
             } else {
+                // dbg!(&self.func_doc_comments);
                 match self.func_doc_comments.first() {
                     Some(val) => val,
                     None => "",
