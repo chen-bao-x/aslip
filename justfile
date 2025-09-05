@@ -5,30 +5,16 @@ expand:
     cargo expand -p aslip_test main >   "./target/expandes.rs"
 
 
-t1:
+ 
+test:
     RUSTFLAGS="-Awarnings" cargo run -q -p aslip_test -- 
-
-t2:
     RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test --   no_arg_action
-
-t3:
     RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test --   one_arg 3
-
-t4:
     RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test --   two_arg 3 "this is text."
-
-t5:
     RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test --   arg_9 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
 
-test:
-    just t1  
-    just t2
-    just t3 
-    just t4
-    just t5
 
 err_case: 
-    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_String "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_bool "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_char "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_i8 "asdf"
@@ -45,14 +31,14 @@ err_case:
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_u128 "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_isize "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_usize "asdf"
-    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_CString "asdf"
-    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_OsString "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_IpAddr "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_Ipv4Addr "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_Ipv6Addr "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_SocketAddr "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_SocketAddrV4 "asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_SocketAddrV6 "asdf"
-    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_PathBuf "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_PathBuf "$asdf"
     -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_OnOff "asdf"
-    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_NumberInRange "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_NumberInRange "99"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_NumberInRange "1"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_NumberInRange "adsfdsa"

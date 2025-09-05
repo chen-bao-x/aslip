@@ -7,3 +7,4 @@ edition = "2024"
 aslip_macro = { version = "0.1.1", path = "../aslip_macro" }
 color-print = "0.3.7"
 owo-colors = "4.2.2"
+prettytable = "0.10.0"

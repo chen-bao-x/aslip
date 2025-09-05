@@ -1,13 +1,10 @@
 // # aslip_test
 
+mod aa;
 mod cmds;
+use aa::*;
 use aslip::app::App;
 use cmds::*;
-
-#[aslip::command]
-pub fn a2() {
-    println!("a2 I'm a2, happy to see you.");
-}
 
 fn main() {
     let mut dsfdsaf = aslip::app::App::new().about("description").author("author");

@@ -1,11 +1,12 @@
-// # ::core::str::FromStr
-
-// url email
-
+///! 这里的类型都可一用作 #[command] 标记的函数的参数。
 pub use String;
+pub use std::path::PathBuf;
+
+#[allow(type_alias_bounds)]
+pub type Vec<T: FromArgStr> = ::std::vec::Vec<T>;
+
 pub use bool;
 pub use char;
-
 pub use f32;
 pub use f64;
 pub use i8;
@@ -29,13 +30,10 @@ pub use std::net::Ipv6Addr;
 pub use std::net::SocketAddr;
 pub use std::net::SocketAddrV4;
 pub use std::net::SocketAddrV6;
-pub use std::path::PathBuf;
 
-pub type NumberInRange<const MIN: isize, const MAX: isize> =
-    crate::custom_types::NumberInRange<MIN, MAX>;
-
-pub type OnOff = crate::custom_types::OnOff;
+use crate::FromArgStr;
+pub use crate::custom_types::NumberInRange;
+pub use crate::custom_types::OnOff;
 
 // email
 // url
-// on off

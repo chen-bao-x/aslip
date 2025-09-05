@@ -254,3 +254,8 @@ impl FnInfo {
         };
     }
 }
+impl FnInfo {
+    pub(crate) fn gen_key(&self) -> String {
+        self.local_file_path.clone() + ":" + &self.func_name
+    }
+}

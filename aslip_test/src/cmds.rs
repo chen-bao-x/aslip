@@ -8,6 +8,11 @@ use aslip::types::OnOff;
 
 // use aslip::*;
 
+#[aslip::command]
+pub fn a2() {
+    println!("a2 I'm a2, happy to see you.");
+}
+
 #[command]
 /// 测试没有参数的命令。
 pub fn no_arg_action() {
@@ -59,8 +64,8 @@ pub fn collection_arg(first: u8, last: Vec<u8>) {
 }
 
 #[command(name = "renamed", short = "c")]
-/// 一句话说明。
-pub fn test_for_macro_args() {}
+/// 测试 command(name = "renamed"）是否能定义命令名称。
+pub fn test_for_rename() {}
 
 /// 函数的文档注释的第一句话会用作 命令 的 <bold>一句话说明</bold> 打印到 cli 程序的帮助信息中。
 /// 整个帮助文档会被作为这个 命令 的 quick help 信息 ———— `app cmd -h` 时显示的信息。
@@ -70,7 +75,7 @@ pub fn test_for_macro_args() {}
 pub fn cmd_doc_example() {}
 
 #[command(name = "-h")]
-/// 替换掉默认的 "-h" 实现。
+/// 测试 替换掉默认的 "-h" 实现。
 pub fn asdfadsfcmd_doc_example() {
     println!("this is my own help command.")
 }
@@ -252,7 +257,7 @@ pub fn arg_PathBuf(PathBuf: PathBuf) {
     println!("ok")
 }
 
-//-------------------------------- # error case: 这几个测试使用来测试 实现的 aslip_macro 是否能正常报错。
+//------------------- # error case: 这几个测试是用来测试 实现的 aslip_macro 是否能正常报错的。
 
 // /// 测试规则：command 函数不能有返回值。
 // #[command]
@@ -264,7 +269,8 @@ pub fn arg_PathBuf(PathBuf: PathBuf) {
 // #[command]
 // pub fn only_last_arg_can_vec_rule_test(a: Vec<String>, a: u8) {}
 
-// /// 测试 rule_3：
+
+// /// 测试 rule 3. 命令的名称不能重复。
 // #[command]
 // pub fn no_arg_adction() {
 //     println!("{}", module_path!());

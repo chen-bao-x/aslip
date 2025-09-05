@@ -4,10 +4,6 @@
 > Are you sure you want to claim this million?  
 > With just a slip of your little hand,  
 > you pressed the confirm button.
-> 
-> a slip
-> 
-> aslip
 
 > [!TIP]
 > 1  

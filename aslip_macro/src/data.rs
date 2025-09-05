@@ -1,22 +1,23 @@
 // aslip_macro
 
+use crate::FnInfo;
 use std::collections::HashMap;
 use std::sync::Mutex;
-use crate::FnInfo;
 extern crate proc_macro;
 
 pub fn insert(info: FnInfo, span: proc_macro2::Span) -> Result<(), syn::Error> {
     let re = COMMANDS.lock();
 
-    match re {
-        Ok(mut m) => {
-            let _old_cmd = m.insert(info.func_name.clone(), info.clone());
-            // crate::rule_3(old_cmd, info, span)?; // 这是重复名称检查的实现有 bug，暂时先不用。
+    let key = info.gen_key();
 
-            return Ok(());
+    return match re {
+        Ok(mut m) => {
+            let _ = m.insert(key, info.clone());
+
+            Ok(())
         }
         Err(e) => Err(syn::Error::new(span, e.to_string())),
-    }
+    };
 }
 
 // let mut m = COMMANDS.lock().unwrap();

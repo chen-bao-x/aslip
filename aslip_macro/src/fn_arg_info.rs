@@ -119,7 +119,8 @@ impl FnArgInfo {
             let converted = format!(
                 r###"
  
-            let {_converted_variable_name}: {ty} = aslip::single_type_converter::<{ty}>(&app, "{arg_name}", {index});
+            // let {_converted_variable_name}: {ty} = aslip::single_type_converter::<{ty}>(&app, "{arg_name}", {index});
+            let {_converted_variable_name}: {ty} = aslip::from_arg_sttr::single_type_converter::<{ty}>(&app, "{arg_name}", {index});
         "###,
                 arg_name = self.arg_name,
             );
@@ -146,7 +147,7 @@ impl FnArgInfo {
                 r###"
             let {_converted_variable_name}: {ty} = {{
                 let tail_args: &[String] = app._user_inputed_cmd_args.get({index}..).expect( "{expect_msg}");
-                let re: {ty} = aslip::vec_type_converter::<{inner_ty}>(tail_args);
+                let re: {ty} = aslip::from_arg_sttr::vec_type_converter::<{inner_ty}>(tail_args);
 
                 re
             }};

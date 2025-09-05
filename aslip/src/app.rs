@@ -1,6 +1,7 @@
 use std::str;
 
 use owo_colors::OwoColorize;
+use prettytable::{format::TableFormat, row, table};
 
 /// 单个命令的相关信息。
 #[derive(Debug, Clone)]
@@ -112,8 +113,8 @@ impl<'a> CmdInfo<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
 /// 保存一些命令行程序的信息。
+#[derive(Debug, Clone)]
 pub struct App<'a> {
     pub _app_name: String,
     pub _about: &'a str,
@@ -124,7 +125,6 @@ pub struct App<'a> {
     pub _help: &'a str,
 
     pub _commands: Vec<CmdInfo<'a>>,
-    // pub _commands: HashMap<&'a str, CmdInfo<'a>>,
 
     // state
     ///
@@ -246,24 +246,29 @@ impl<'a> App<'a> {
         let commands_marker = "Commands:".bold().green().to_string();
 
         let command_list = {
-            let mut re = String::new();
-            for x in self._commands.iter() {
-                // let x = kv_pair.1;
-
-                re.push_str("    ");
-                re.push_str(x.name);
-
-                if !x.short_name.is_empty() {
-                    re.push_str(", ");
-                    re.push_str(x.short_name);
-                }
-
-                re.push_str("\t\t");
-                re.push_str(x.about);
-                re.push_str("\n");
+            let mut table = table!();
+            {
+                let mut f = TableFormat::new();
+                f.column_separator(' ');
+                f.padding(4, 0);
+                table.set_format(f);
             }
 
-            re
+            for x in self._commands.iter() {
+                let name: String = {
+                    let short = if !x.short_name.is_empty() {
+                        ", ".to_string() + x.short_name
+                    } else {
+                        "".into()
+                    };
+
+                    (x.name.to_string() + &short).cyan().bold().to_string()
+                };
+
+                table.add_row(row![name, x.about]);
+            }
+
+            table
         };
 
         let app_help_msg: String = format!(

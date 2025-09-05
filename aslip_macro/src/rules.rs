@@ -23,7 +23,7 @@ pub fn rule_1(input: &syn::ItemFn) -> syn::Result<()> {
     if let syn::ReturnType::Type(_, ty) = &input.sig.output {
         // 有返回值 → 报错
 
-        return Err(syn::Error::new_spanned(ty, "command 函数不能有返回值。"));
+        return Err(syn::Error::new_spanned(ty, "被 #[command] 标记的函数不能有返回值。"));
     }
 
     return Ok(());
@@ -51,7 +51,7 @@ pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> syn::Result
             let ty_span = get_ty_span(arg);
             return Err(syn::Error::new(
                 ty_span,
-                "只有最后一个参数可以使用 Vec<T> 类型。",
+                "只有最后一个参数可以使用 Vec<T: FromArgStr> 类型。",
             ));
         }
 
@@ -64,19 +64,42 @@ pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> syn::Result
 
 #[allow(dead_code)]
 /// rule 3. 命令的名称不能重复。
-// 这个实现起来有点难。
-// 用 函数名 + 文件路径 做 key，
-// 这样函数名称相同却不在同一个文件的函数就能都保存起来了，
-// 这样就可以检查 同名函数了，我真是个天才。
-pub fn rule_3(old: Option<FnInfo>, _new: FnInfo, span: proc_macro2::Span) -> syn::Result<()> {
-    if let Some(_) = old {
-        let msg = format!("命令的名称不能重复");
-        return Err(syn::Error::new(span, msg));
-    }
-    // let msg = format!("命令的名称不能重复");
-    // return syn::Error::new(span, msg);
+pub fn rule_3(_new: FnInfo, span: proc_macro2::Span) -> syn::Result<()> {
+    let key = _new.gen_key();
+    let re = crate::data::COMMANDS.lock();
+    match re {
+        Err(e) => Err::<(), syn::Error>(syn::Error::new(span, e.to_string())),
+        Ok(mut m) => {
+            // let _old_cmd = m.insert(info.func_name.clone(), info.clone());
+            let _ = m.insert(key, _new.clone());
+            let same_name = m
+                .iter()
+                .find(|f| f.1.func_name == _new.func_name && f.1.gen_key() != _new.gen_key());
 
-    Ok(())
+            match same_name {
+                None => Ok(()),
+
+                Some(old) => {
+                    let old_name = old.1.func_name.clone();
+                    let old_path =
+                        format!("{}:{}:{}", old.1.local_file_path, old.1.line, old.1.colum);
+
+                    let new_name = _new.func_name;
+                    let new_path = format!("{}:{}:{}", _new.local_file_path, _new.line, _new.colum);
+
+                    let msg = format!(
+                        "命令的名称不能相同：
+{old_name} at: {old_path}
+{new_name} at: {new_path}
+                        "
+                    );
+
+                    let err = syn::Error::new(span, msg);
+                    return Err(err);
+                }
+            }
+        }
+    }
 }
 
 // toos functions。

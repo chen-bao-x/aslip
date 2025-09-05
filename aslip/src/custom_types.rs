@@ -1,6 +1,6 @@
+use crate::from_arg_sttr::FromArgStr;
+use crate::from_arg_sttr::ParseError;
 use owo_colors::OwoColorize;
-
-use crate::ParseError;
 
 /// 一个数字。
 #[derive(Debug, Clone)]
@@ -8,21 +8,21 @@ pub struct NumberInRange<const MIN: isize, const MAX: isize> {
     pub value: f64,
 }
 
-impl<const MIN: isize, const MAX: isize> crate::from_arg_sttr::FromArgStr
-    for NumberInRange<MIN, MAX>
-{
-    fn from_arg_str(s: &str) -> Result<Self, crate::ParseError> {
-        let re = <f64 as ::core::str::FromStr>::from_str(s).map_err(|_e| ParseError {
-            err_msg: format!(
-                "参数错误。{val} 不是类型 {ty} 的值。",
-                val = s,
-                ty = "NumberInRange"
-            ),
-            tips: format!(
-                "示例: {min} {max}",
-                min = MIN.green().bold(),
-                max = MAX.green().bold()
-            ),
+impl<const MIN: isize, const MAX: isize> FromArgStr for NumberInRange<MIN, MAX> {
+    fn from_arg_str(s: &str) -> Result<Self, ParseError> {
+        let re = <f64 as ::core::str::FromStr>::from_str(s).map_err(|_e| {
+            crate::from_arg_sttr::ParseError {
+                err_msg: format!(
+                    "参数错误。{val} 不是类型 {ty} 的值。",
+                    val = s,
+                    ty = "NumberInRange"
+                ),
+                tips: format!(
+                    "示例: {min} {max}",
+                    min = MIN.green().bold(),
+                    max = MAX.green().bold()
+                ),
+            }
         })?;
 
         let min = MIN as f64;
@@ -64,7 +64,7 @@ pub enum OnOff {
 }
 
 impl crate::from_arg_sttr::FromArgStr for OnOff {
-    fn from_arg_str(s: &str) -> Result<Self, crate::ParseError> {
+    fn from_arg_str(s: &str) -> Result<Self, ParseError> {
         return match s {
             "on" => Ok(OnOff::On),
             "off" => Ok(OnOff::Off),

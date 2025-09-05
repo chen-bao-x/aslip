@@ -84,7 +84,7 @@ pub fn command(_args: TokenStream, input: TokenStream) -> TokenStream {
     crate::command_impl::command_impl(_args, input)
 }
 
-/// ```rust
+/// ```rust,ignore
 /// fn run()
 /// fn run(app: aslip::App)
 /// ```
