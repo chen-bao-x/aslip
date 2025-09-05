@@ -64,6 +64,10 @@ pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> syn::Result
 
 #[allow(dead_code)]
 /// rule 3. 命令的名称不能重复。
+// 这个实现起来有点难。
+// 用 函数名 + 文件路径 做 key，
+// 这样函数名称相同却不在同一个文件的函数就能都保存起来了，
+// 这样就可以检查 同名函数了，我真是个天才。
 pub fn rule_3(old: Option<FnInfo>, _new: FnInfo, span: proc_macro2::Span) -> syn::Result<()> {
     if let Some(_) = old {
         let msg = format!("命令的名称不能重复");

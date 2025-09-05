@@ -66,47 +66,7 @@ pub fn single_type_converter<T: from_arg_sttr::FromArgStr>(
     match asdf {
         Ok(val) => return val,
         Err(e) => {
-            eprintln!("{err_marker}: ", err_marker = "error: ".red().bold(),);
-
-            // eprintln!(
-            //     "{}{}: 将 {:?} 转换为 {} 出错。",
-            //     "error: ".red().bold(),
-            //     std::any::type_name_of_val(&e).red(),
-            //     arg.green(),
-            //     std::any::type_name::<T>().cyan().bold(),
-            // );
-
-            std::process::exit(1);
-        }
-    };
-}
-
-pub fn single_type_converter_v3<T: from_arg_sttr::FromArgStr_v3>(
-    app: &app::App,
-    arg_name: &str,
-    arg_index: usize,
-) -> T {
-    let arg: &String = app
-        ._user_inputed_cmd_args
-        .get(arg_index)
-        .expect(&format!("需要参数：<{arg_name}>"));
-
-    use owo_colors::OwoColorize;
-
-    let asdf = <T as from_arg_sttr::FromArgStr_v3>::from_arg_str(arg);
-
-    match asdf {
-        Ok(val) => return val,
-        Err(e) => {
             eprintln!("{err_marker}: {e}", err_marker = "error: ".red().bold(),);
-
-            // eprintln!(
-            //     "{}{}: 将 {:?} 转换为 {} 出错。",
-            //     "error: ".red().bold(),
-            //     std::any::type_name_of_val(&e).red(),
-            //     arg.green(),
-            //     std::any::type_name::<T>().cyan().bold(),
-            // );
 
             std::process::exit(1);
         }
@@ -140,14 +100,14 @@ pub fn vec_type_converter<T: from_arg_sttr::FromArgStr>(args: &[String]) -> Vec<
     return re;
 }
 
-#[test]
-fn sadfadsf() {
-    let _sadf: Vec<std::net::IpAddr> = vec_type_converter(&[
-        format!("1"),
-        format!("2"),
-        format!("3"),
-        format!("4"),
-        format!("5"),
-        format!("6"),
-    ]);
-}
+// #[test]
+// fn sadfadsf() {
+//     let _sadf: Vec<std::net::IpAddr> = vec_type_converter(&[
+//         format!("1"),
+//         format!("2"),
+//         format!("3"),
+//         format!("4"),
+//         format!("5"),
+//         format!("6"),
+//     ]);
+// }

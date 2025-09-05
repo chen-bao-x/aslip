@@ -1,5 +1,10 @@
+use std::ffi::*;
+use std::net::*;
+use std::path::PathBuf;
+
 use aslip::command;
 use aslip::types::NumberInRange;
+use aslip::types::OnOff;
 
 // use aslip::*;
 
@@ -7,11 +12,6 @@ use aslip::types::NumberInRange;
 /// 测试没有参数的命令。
 pub fn no_arg_action() {
     println!("I'm no_arg_action, happy to see you.");
-}
-
-#[command]
-pub fn a2() {
-    println!("a2 I'm a2, happy to see you.");
 }
 
 #[command]
@@ -70,16 +70,189 @@ pub fn test_for_macro_args() {}
 pub fn cmd_doc_example() {}
 
 #[command(name = "-h")]
+/// 替换掉默认的 "-h" 实现。
 pub fn asdfadsfcmd_doc_example() {
     println!("this is my own help command.")
 }
 
-// #[command]
-// pub fn option_arg(o: Option<String>) {
-//     println!("a2 I'm a2, happy to see you.");
-// }
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_NumberInRange(arg: NumberInRange<3, 9>) {
+    let _ = arg;
+    println!("ok")
+}
 
-// # error case: 这几个测试使用来测试 实现的 aslip_macro 是否能正常报错。
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_OnOff(String: OnOff) {
+    let _ = String;
+    println!("ok")
+}
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_String(String: String) {
+    let _ = String;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_bool(bool: bool) {
+    let _ = bool;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_char(char: char) {
+    let _ = char;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_i8(i8: i8) {
+    let _ = i8;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_u8(u8: u8) {
+    let _ = u8;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_i16(i16: i16) {
+    let _ = i16;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_u16(u16: u16) {
+    let _ = u16;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_i32(i32: i32) {
+    let _ = i32;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_u32(u32: u32) {
+    let _ = u32;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_f32(f32: f32) {
+    let _ = f32;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_i64(i64: i64) {
+    let _ = i64;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_u64(u64: u64) {
+    let _ = u64;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_f64(f64: f64) {
+    let _ = f64;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_i128(i128: i128) {
+    let _ = i128;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_u128(u128: u128) {
+    let _ = u128;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_isize(isize: isize) {
+    let _ = isize;
+    println!("ok")
+}
+
+#[command]
+pub fn arg_usize(usize: usize) {
+    let _ = usize;
+    println!("ok")
+}
+#[allow(non_snake_case)]
+#[command]
+pub fn arg_CString(CString: CString) {
+    let _ = CString;
+    println!("ok")
+}
+
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_OsString(OsString: OsString) {
+    let _ = OsString;
+    println!("ok")
+}
+
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_IpAddr(IpAddr: IpAddr) {
+    let _ = IpAddr;
+    println!("ok")
+}
+#[allow(non_snake_case)]
+#[command]
+pub fn arg_Ipv4Addr(Ipv4Addr: Ipv4Addr) {
+    let _ = Ipv4Addr;
+    println!("ok")
+}
+
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_Ipv6Addr(Ipv6Addr: Ipv6Addr) {
+    let _ = Ipv6Addr;
+    println!("ok")
+}
+
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_SocketAddr(SocketAddr: SocketAddr) {
+    let _ = SocketAddr;
+    println!("ok")
+}
+
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_SocketAddrV4(SocketAddrV4: SocketAddrV4) {
+    let _ = SocketAddrV4;
+    println!("ok")
+}
+
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_SocketAddrV6(SocketAddrV6: SocketAddrV6) {
+    let _ = SocketAddrV6;
+    println!("ok")
+}
+
+#[command]
+#[allow(non_snake_case)]
+pub fn arg_PathBuf(PathBuf: PathBuf) {
+    let _ = PathBuf;
+    println!("ok")
+}
+
+//-------------------------------- # error case: 这几个测试使用来测试 实现的 aslip_macro 是否能正常报错。
 
 // /// 测试规则：command 函数不能有返回值。
 // #[command]

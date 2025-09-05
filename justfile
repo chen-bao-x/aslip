@@ -1,4 +1,6 @@
 
+
+
 expand:
     cargo expand -p aslip_test main >   "./target/expandes.rs"
 
@@ -24,3 +26,33 @@ test:
     just t3 
     just t4
     just t5
+
+err_case: 
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_String "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_bool "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_char "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_i8 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_u8 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_i16 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_u16 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_i32 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_u32 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_f32 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_i64 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_u64 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_f64 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_i128 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_u128 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_isize "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_usize "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_CString "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_OsString "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_IpAddr "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_Ipv4Addr "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_Ipv6Addr "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_SocketAddr "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_SocketAddrV4 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_SocketAddrV6 "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_PathBuf "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_OnOff "asdf"
+    -RUSTFLAGS="-Awarnings" cargo run  -q -p aslip_test -- arg_NumberInRange "asdf"

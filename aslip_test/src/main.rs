@@ -2,7 +2,12 @@
 
 mod cmds;
 use aslip::app::App;
-use cmds::*; // TODO: 让用户可以不输入 use cmds::* 也能正确访问到正确的函数。
+use cmds::*;
+
+#[aslip::command]
+pub fn a2() {
+    println!("a2 I'm a2, happy to see you.");
+}
 
 fn main() {
     let mut dsfdsaf = aslip::app::App::new().about("description").author("author");
@@ -31,8 +36,7 @@ fn main() {
 
 //     match cmd_name.as_str() {
 //         "" => {
-            
-      
+
 //             println!("命令的名称不能时 空字符串 \"\"");
 //         }
 
