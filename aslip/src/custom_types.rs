@@ -10,6 +10,7 @@ use owo_colors::OwoColorize;
 pub struct NumberInRange<const MIN: isize, const MAX: isize> {
     pub value: f64,
 }
+
 impl<const MIN: isize, const MAX: isize> FromArgStr for NumberInRange<MIN, MAX> {
     fn from_arg_str(s: &str) -> Result<Self, ParseError> {
         let re = <f64 as ::core::str::FromStr>::from_str(s).map_err(|_e| {
@@ -86,7 +87,7 @@ impl crate::from_arg_sttr::FromArgStr for OnOff {
 /// file path.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FilePath {
-    path: std::path::PathBuf,
+    pub path: std::path::PathBuf,
 }
 impl FromArgStr for FilePath {
     fn from_arg_str(s: &str) -> Result<Self, ParseError> {
@@ -117,7 +118,7 @@ impl FromArgStr for FilePath {
 /// folder path.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FolderPath {
-    path: std::path::PathBuf,
+    pub path: std::path::PathBuf,
 }
 impl FromArgStr for FolderPath {
     fn from_arg_str(s: &str) -> Result<Self, ParseError> {

@@ -1,8 +1,3 @@
-///! aslip_macro
-///! aslip_macro
-///! aslip_macro
-///! aslip_macro
-
 use proc_macro::TokenStream;
 extern crate proc_macro;
 use fn_arg_info::*;
@@ -35,8 +30,8 @@ mod run_impl;
 ///
 /// /// 只有一个一个参数 的命令。
 /// /// Usage: app one_arg <PATH>
-/// /// 
-/// /// <green!>Args</>: 
+/// ///
+/// /// <green!>Args</>:
 /// ///     <PATH>:     the file path.
 /// /// Options:
 /// ///     -h          print this message.
@@ -53,20 +48,17 @@ mod run_impl;
 /// pub fn collection_arg(first: u8, last: Vec<u8>) {
 ///     println!("your input is: {:?} {:?}", first, last);
 /// }
-/// 
+///
 /// #[command] 也可以通过 macro args 来做一些设置。
 /// #[command] macro 已经支持的参数有：
-/// 
+///
 ///    name        命令的实际命令名称。 如果没有设置，则默认使用 函数的名称 作为 命令名称。
 ///    short       命令的短名称，通常是命令名称的第一个字母。
-/// 
+///
 /// #[command(name = "true_name", short = "s")]
 /// fn fake_name(){
 /// }
 /// ```
-///
-///
-/// 
 /// 
 /// ---
 /// ```rust,ignore

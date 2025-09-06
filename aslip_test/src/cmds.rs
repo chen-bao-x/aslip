@@ -253,22 +253,23 @@ pub mod ok_case {
         let _ = PathBuf;
         println!("ok")
     }
+
+    //------------------- # error case: 这几个测试是用来测试 实现的 aslip_macro 是否能正常报错的。
+
+    // /// 测试规则：command 函数不能有返回值。
+    // #[command]
+    // pub fn no_returns_rule_test() -> u8 {
+    //     return 3;
+    // }
+
+    // /// 测试规则：只有最后一个参数可以使用 Vec<T> 类型。
+    // #[command]
+    // pub fn only_last_arg_can_vec_rule_test(a: Vec<String>, a: u8) {}
+
+    // /// 测试 rule 3. 命令的名称不能重复。
+    // #[command]
+    // pub fn no_arg_adction() {
+    //     println!("{}", module_path!());
+    //     println!("I'm no_arg_action, happy to see you.");
+    // }
 }
-//------------------- # error case: 这几个测试是用来测试 实现的 aslip_macro 是否能正常报错的。
-
-// /// 测试规则：command 函数不能有返回值。
-// #[command]
-// pub fn no_returns_rule_test() -> u8 {
-//     return 3;
-// }
-
-// /// 测试规则：只有最后一个参数可以使用 Vec<T> 类型。
-// #[command]
-// pub fn only_last_arg_can_vec_rule_test(a: Vec<String>, a: u8) {}
-
-// /// 测试 rule 3. 命令的名称不能重复。
-// #[command]
-// pub fn no_arg_adction() {
-//     println!("{}", module_path!());
-//     println!("I'm no_arg_action, happy to see you.");
-// }

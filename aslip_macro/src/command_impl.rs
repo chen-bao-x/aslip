@@ -25,14 +25,14 @@ pub fn command_impl(_args: TokenStream, input: TokenStream) -> TokenStream {
         Err(e) => return e.into_compile_error().into(),
     };
 
-    // error check.
-    {
-        let re = crate::rules::rule_3(fn_info.clone(), func.span()); // 这是重复名称检查的实现有 bug，暂时先不用。
-        match re {
-            Ok(_) => {}
-            Err(e) => return e.into_compile_error().into(),
-        };
-    };
+    // // error check.
+    // {
+    //     let re = crate::rules::rule_3(fn_info.clone(), func.span()); // 这是重复名称检查的实现有 bug，暂时先不用。
+    //     match re {
+    //         Ok(_) => {}
+    //         Err(e) => return e.into_compile_error().into(),
+    //     };
+    // };
 
     {
         // 将 fn_info 存储到 COMMANDS 中， 留着给 aslip_macro::run!() 用。

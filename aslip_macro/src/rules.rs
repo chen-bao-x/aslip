@@ -2,17 +2,16 @@
 // 2. 只有最后一个参数可以是 数组这样的集合类型。
 // 3. can命令的名称不能重复。
 
+use syn::spanned::Spanned;
+
 use crate::FnInfo;
 
 pub fn rule_check(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> syn::Result<()> {
     rule_1(input)?;
-    // if let Some(err) = rule_1(input) {
-    //     return Some(err);
-    // }
-    rule_2(attr, input)?;
-    // if let Some(err) = rule_2(attr, input) {
-    //     return Some(err);
-    // }
+
+    rule_2(attr.clone(), input)?;
+
+    rule_3(attr, input)?;
 
     return Ok(());
 }
@@ -23,7 +22,10 @@ pub fn rule_1(input: &syn::ItemFn) -> syn::Result<()> {
     if let syn::ReturnType::Type(_, ty) = &input.sig.output {
         // 有返回值 → 报错
 
-        return Err(syn::Error::new_spanned(ty, "被 #[command] 标记的函数不能有返回值。"));
+        return Err(syn::Error::new_spanned(
+            ty,
+            "被 #[command] 标记的函数不能有返回值。",
+        ));
     }
 
     return Ok(());
@@ -64,11 +66,14 @@ pub fn rule_2(attr: proc_macro::TokenStream, input: &syn::ItemFn) -> syn::Result
 
 #[allow(dead_code)]
 /// rule 3. 命令的名称不能重复。
-pub fn rule_3(_new: FnInfo, span: proc_macro2::Span) -> syn::Result<()> {
+pub fn rule_3(attr: proc_macro::TokenStream, fn_item: &syn::ItemFn) -> syn::Result<()> {
+    let _new = FnInfo::new(attr, fn_item)?;
+
     let key = _new.gen_key();
     let re = crate::data::COMMANDS.lock();
+
     match re {
-        Err(e) => Err::<(), syn::Error>(syn::Error::new(span, e.to_string())),
+        Err(e) => Err::<(), syn::Error>(syn::Error::new(fn_item.span(), e.to_string())),
         Ok(mut m) => {
             // let _old_cmd = m.insert(info.func_name.clone(), info.clone());
             let _ = m.insert(key, _new.clone());
@@ -94,7 +99,7 @@ pub fn rule_3(_new: FnInfo, span: proc_macro2::Span) -> syn::Result<()> {
                         "
                     );
 
-                    let err = syn::Error::new(span, msg);
+                    let err = syn::Error::new(fn_item.span(), msg);
                     return Err(err);
                 }
             }
@@ -102,8 +107,7 @@ pub fn rule_3(_new: FnInfo, span: proc_macro2::Span) -> syn::Result<()> {
     }
 }
 
-// toos functions。
-
+/// tools functions。
 fn get_ty_span(arg: &syn::FnArg) -> proc_macro2::Span {
     use syn::spanned::Spanned;
     match arg {

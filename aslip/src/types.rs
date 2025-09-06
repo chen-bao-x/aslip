@@ -1,20 +1,24 @@
-
-use crate::FromArgStr;
-#[allow(type_alias_bounds)]
-pub type Vec<T: FromArgStr> = ::std::vec::Vec<T>;
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 pub use String;
-pub use std::path::PathBuf;
-
+pub use Vec;
+pub type PATH = std::path::PathBuf; // file path or folder path.
 pub type TEXT = String;
-/// file path or folder path.
-pub type PATH = std::path::PathBuf;
 pub type NUMBER = f64;
+pub type OnOff = crate::custom_types::OnOff; // 'on' or 'off'
 
 pub use crate::custom_types::FilePath;
 pub use crate::custom_types::FolderPath;
-
 pub use crate::custom_types::NumberInRange;
-pub use crate::custom_types::OnOff;
 
 pub use bool;
 pub use char;
@@ -41,6 +45,7 @@ pub use std::net::Ipv6Addr;
 pub use std::net::SocketAddr;
 pub use std::net::SocketAddrV4;
 pub use std::net::SocketAddrV6;
+pub use std::path::PathBuf;
 
 // email
 // url
