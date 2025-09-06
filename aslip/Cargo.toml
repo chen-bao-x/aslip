@@ -1,10 +1,17 @@
 [package]
 name = "aslip"
-version = "0.1.0"
+version = "0.1.9"
 edition = "2024"
 
+description = "a simple command line argument parser."
+license = "MIT"
+repository = "https://github.com/chen-bao-x/aslip"
+
+documentation = "https://github.com/chen-bao-x/aslip"
+
+
 [dependencies]
-aslip_macro = { version = "0.1.1", path = "../aslip_macro" }
+aslip_macro = { version = "0.1.9", path = "../aslip_macro" }
 color-print = "0.3.7"
 owo-colors = "4.2.2"
 prettytable = "0.10.0"
