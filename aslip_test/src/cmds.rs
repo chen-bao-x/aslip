@@ -7,6 +7,7 @@ pub mod ok_case {
     use std::path::PathBuf;
 
     use aslip::command;
+    use aslip::types::Flag;
     use aslip::types::NumberInRange;
     use aslip::types::OnOff;
 
@@ -252,6 +253,20 @@ pub mod ok_case {
     pub fn arg_PathBuf(PathBuf: PathBuf) {
         let _ = PathBuf;
         println!("ok")
+    }
+
+    #[command]
+    #[allow(non_snake_case)]
+    pub fn arg_Flag(flag: Flag) {
+        let _ = flag;
+        println!("ok")
+    }
+    #[command]
+    #[allow(non_snake_case)]
+    pub fn arg_Flags(flag: Vec<Flag>) {
+        // let _ = flag;
+        println!("ok");
+        dbg!(flag);
     }
 
     //------------------- # error case: 这几个测试是用来测试 实现的 aslip_macro 是否能正常报错的。

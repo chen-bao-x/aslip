@@ -1,5 +1,10 @@
 #! bin/bash
 
+check:
+    gitleaks dir .
+    gitleaks git
+    cargo audit
+    cargo publish --dry-run 
 
 expand:
     cargo expand -p aslip_test main >   "./target/expandes.rs"

@@ -15,6 +15,7 @@ pub type PATH = std::path::PathBuf; // file path or folder path.
 pub type TEXT = String;
 pub type NUMBER = f64;
 pub type OnOff = crate::custom_types::OnOff; // 'on' or 'off'
+pub use crate::custom_types::Flag;
 
 pub use crate::custom_types::FilePath;
 pub use crate::custom_types::FolderPath;

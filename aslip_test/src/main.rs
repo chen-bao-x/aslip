@@ -3,7 +3,6 @@
 mod aa;
 mod cmds;
 use aa::*;
-use aslip::app::App;
 use cmds::ok_case::*;
 
 fn main() {

@@ -45,7 +45,7 @@ pub fn run_impl(input: TokenStream) -> TokenStream {
 
          'block:  {
              use aslip::types::*;
-
+            use aslip::app::App;
 
              #app
 

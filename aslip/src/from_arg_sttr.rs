@@ -1,6 +1,6 @@
 use color_print::{cformat, cstr};
 use owo_colors::OwoColorize;
-use std::str::FromStr;
+use std::{process::exit, str::FromStr};
 
 // -=-----------------------------------------------------------------------------------
 
@@ -9,7 +9,7 @@ use std::str::FromStr;
 /// ```rust
 /// use aslip::FromArgStr;
 /// use aslip::from_arg_sttr::ParseError;
-/// 
+///
 /// struct CustomType {}
 /// impl FromArgStr for CustomType {
 ///     fn from_arg_str(s: &str) -> Result<Self, ParseError> {
@@ -485,10 +485,22 @@ pub fn single_type_converter<T: FromArgStr>(
     arg_name: &str,
     arg_index: usize,
 ) -> T {
-    let arg: &String = app
-        ._user_inputed_cmd_args
-        .get(arg_index)
-        .expect(&format!("需要参数：<{arg_name}>"));
+    let arg: &String = {
+        let re = app._user_inputed_cmd_args.get(arg_index);
+
+        match re {
+            Some(v) => v,
+            None => {
+                eprintln!("{}", format!("需要参数：<{arg_name}>"));
+
+                if let Some(cmd) = &app._user_inputed_cmd_name {
+                    app.print_cmd_quick_help_for(cmd);
+                }
+
+                exit(1)
+            }
+        }
+    };
 
     use owo_colors::OwoColorize;
 
@@ -506,7 +518,6 @@ pub fn single_type_converter<T: FromArgStr>(
 
 pub fn vec_type_converter<T: FromArgStr>(args: &[String]) -> Vec<T> {
     use owo_colors::OwoColorize;
-    use std::process::exit;
 
     let mut re: Vec<T> = vec![];
     for x in args {
@@ -514,15 +525,9 @@ pub fn vec_type_converter<T: FromArgStr>(args: &[String]) -> Vec<T> {
         match sdaf {
             Ok(val) => re.push(val),
             Err(e) => {
-                eprintln!(
-                    "{}{}: 将 {:?} 转换为 {} 出错。",
-                    "error: ".red().bold(),
-                    std::any::type_name_of_val(&e).red(),
-                    x.green(),
-                    std::any::type_name::<T>().cyan().bold()
-                );
+                eprintln!("{err_marker}: {e}", err_marker = "error: ".red().bold(),);
 
-                exit(1);
+                std::process::exit(1);
             }
         }
     }

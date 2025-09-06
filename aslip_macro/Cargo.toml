@@ -3,6 +3,13 @@ name = "aslip_macro" # a simple command line paser.
 version = "0.1.9"
 edition = "2024"
 
+description = "helper macros for aslip"
+license = "MIT"
+repository = "https://github.com/chen-bao-x/aslip"
+
+documentation = "documentation"
+
+
 
 [lib]
 proc-macro = true

@@ -59,7 +59,7 @@ mod run_impl;
 /// fn fake_name(){
 /// }
 /// ```
-/// 
+///
 /// ---
 /// ```rust,ignore
 /// // main.rs
@@ -87,11 +87,13 @@ pub fn command(_args: TokenStream, input: TokenStream) -> TokenStream {
 /// use aslip::command;
 ///
 /// #[command]
+/// 没有参数的命令。
 /// pub fn no_arg_action() {
 ///     println!("I'm no_arg_action, happy to see you.");
 /// }
 ///
 /// #[command]
+/// 只有一个参数的命令
 /// pub fn one_arg(path: String) {
 ///     println!(
 ///         "one_arg  I'm one_arg, happy to see you.\n your input is: {:?}",
@@ -100,7 +102,7 @@ pub fn command(_args: TokenStream, input: TokenStream) -> TokenStream {
 /// }
 ///
 /// #[command]
-/// /// Vec<T> 类型只能作为最后一个参数。
+/// /// Vec 类型只能作为最后一个参数。
 /// pub fn collection_arg(first: u8, last: Vec<u8>) {
 ///     println!("your input is: {:?} {:?}", first, last);
 /// }

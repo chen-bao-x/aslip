@@ -241,7 +241,7 @@ impl<'a> App<'a> {
         let author = "\n".to_string() + self._author;
 
         let usage_marker = "Usage:".bold().green().to_string();
-        let usage = format!("    {app_name} {}", "[Command]".style(ARG_TYPE));
+        let usage = format!("    {app_name} {}", "[commands]".style(ARG_TYPE));
 
         let commands_marker = "Commands:".bold().green().to_string();
 
