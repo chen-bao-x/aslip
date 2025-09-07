@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "aslip"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "aslip_macro",
  "color-print",
@@ -14,7 +14,7 @@ dependencies = [
 
 [[package]]
 name = "aslip_macro"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "once_cell",
  "owo-colors",

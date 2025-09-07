@@ -7,7 +7,7 @@ extern crate proc_macro;
 
 pub fn run_impl(input: TokenStream) -> TokenStream {
     let arms: Vec<syn::Arm> = {
-        let store = data::COMMANDS.lock().expect(concat!(file!(), line!()));
+        let store = data::COMMANDS.lock().expect(concat!(file!(), ":", line!()));
 
         let mut re: Vec<syn::Arm> = vec![];
 
@@ -43,18 +43,19 @@ pub fn run_impl(input: TokenStream) -> TokenStream {
     let expanded_tokens = quote! {
 
 
-         'block:  {
-             use aslip::types::*;
+        'block:  {
+            use aslip::types::*;
             use aslip::app::App;
 
-             #app
+            #app
 
-     match &app._user_inputed_cmd_name {
+            match &app._user_inputed_cmd_name {
                 None => {
                      app.print_app_help();
                 }
-                     Some(cmd_name)  => {
+                Some(cmd_name)  => {
 
+                        // 查看 命令 的 quick help。
                         // app cmd -h
                         // app cmd --help
                         if let Some(first_arg) = app._user_inputed_cmd_args.first() {
@@ -65,13 +66,24 @@ pub fn run_impl(input: TokenStream) -> TokenStream {
                         };
 
                             match cmd_name.as_str() {
-                                "" => panic!("命令的名称不能时 空字符串 \"\"") ,
+
+                                "" =>    {app.print_app_help();},
 
                                 #(#arms)*
 
                                 x => {
                                     match x {
-                                        "-h" | "--help" | "help" => {
+
+                                        "help" => {
+                                            if let Some(first_arg) = app._user_inputed_cmd_args.first() {
+                                                    app.print_cmd_quick_help_for(first_arg);
+                                                    break 'block;
+                                            }else {
+                                                app.print_app_help();
+                                            };
+
+                                        }
+                                        "-h" | "--help"  => {
                                             app.print_app_help();
 
                                         }
@@ -101,10 +113,37 @@ pub fn run_impl(input: TokenStream) -> TokenStream {
     TokenStream::from(expanded_tokens)
 }
 
-fn gen_app_var(input: TokenStream) -> proc_macro2::TokenStream {
-    let lit: syn::Result<syn::Ident> = syn::parse(input.clone());
+/// &mut app
+#[derive(Clone)]
+struct BarrowMutIdent {
+    app_iden: syn::Ident,
+}
+impl syn::parse::Parse for BarrowMutIdent {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let _: syn::Token![&] = input.parse()?;
+        let _: syn::Token![mut] = input.parse()?;
+        let app_iden: syn::Ident = input.parse()?;
+        Ok(Self { app_iden: app_iden })
+    }
+}
 
-    // let sadf = gen_push_to_app_command_list();
+/// ()
+#[derive(Clone)]
+struct EmptyIden {}
+impl syn::parse::Parse for EmptyIden {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let _ = input;
+
+        Ok(Self {})
+    }
+}
+fn gen_app_var(input: TokenStream) -> proc_macro2::TokenStream {
+    let barrow_mut_ident_result: syn::Result<BarrowMutIdent> =
+        syn::parse::<BarrowMutIdent>(input.clone());
+    if let Err(ref _e) = barrow_mut_ident_result {
+        // 有求 要么 &mut app, 要么 ()
+        let _ = syn::parse::<EmptyIden>(input).expect("提示：&mut app");
+    }
 
     let store = data::COMMANDS.lock().expect(concat!(file!(), line!()));
 
@@ -120,26 +159,20 @@ fn gen_app_var(input: TokenStream) -> proc_macro2::TokenStream {
         };
     }
 
-    return match lit {
-        Ok(variable_ident) => {
+    return match barrow_mut_ident_result {
+        Ok(app_ident) => {
+            let ident = app_ident.app_iden;
             // 用户自己定义了一个 aslip::app::App, 则使用用户定义的 aslip::app::App.
             quote! {
-
-            //   let mut app = #variable_ident;
-                 let app: &mut App = &mut #variable_ident;
+                let app: &mut App = &mut #ident;
                 #app_cmds_init
-
-
             }
         }
-        Err(_) => {
+        Err(_e) => {
             // 用户没有传入，则使用默认实现。
             quote! {
                 let mut app = ::aslip::app::App::new();
-
                 #app_cmds_init
-
-
             }
         }
     };

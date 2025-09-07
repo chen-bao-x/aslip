@@ -25,15 +25,6 @@ pub fn command_impl(_args: TokenStream, input: TokenStream) -> TokenStream {
         Err(e) => return e.into_compile_error().into(),
     };
 
-    // // error check.
-    // {
-    //     let re = crate::rules::rule_3(fn_info.clone(), func.span()); // 这是重复名称检查的实现有 bug，暂时先不用。
-    //     match re {
-    //         Ok(_) => {}
-    //         Err(e) => return e.into_compile_error().into(),
-    //     };
-    // };
-
     {
         // 将 fn_info 存储到 COMMANDS 中， 留着给 aslip_macro::run!() 用。
         ::once_cell::sync::Lazy::force(&crate::data::COMMANDS);
@@ -43,19 +34,13 @@ pub fn command_impl(_args: TokenStream, input: TokenStream) -> TokenStream {
         }
     }
 
-    // println!("fn_info: {:#?}", fn_info);
-
     let trait_bound_check_code = fn_info.gen_trait_bound_check();
     let result = syn::parse_str::<syn::ItemConst>(&trait_bound_check_code);
     match result {
         Ok(trait_bound_check_ast) => {
             return TokenStream::from(quote!(
-
                 #trait_bound_check_ast
                 #func
-
-                // -h               quick help
-                // app help cmd     command document
             ));
         }
 

@@ -68,7 +68,7 @@ Commands:
 
 
 Use "aslip_example help <command>" for more information about a command.
-        
+
 ```
 
 > [!TIP]
@@ -86,7 +86,7 @@ Use "aslip_example help <command>" for more information about a command.
 > }
 >
 > fn main(){
->      aslip::run!("list files.");
+>      aslip::run!();
 > }
 > ```
 
@@ -134,11 +134,13 @@ error: Unknown color attribute:
 
 复现方式：
 
+```rust
 #[command]
 /// list files.
 /// Usage:
 /// aslip*example ls <PATH> [OPTIONS...]
 fn ls(path: FolderPath, options: Vec<String>) { /* ... \_/ }
+```
 
 这是因为函数的文档注释会交给 color_print::cstr!() 宏去处理，
 而 color_print::cstr!() 宏会使用 <red>red text</red> 这样的标签来给文字添加样式，
@@ -148,6 +150,5 @@ fn ls(path: FolderPath, options: Vec<String>) { /* ... \_/ }
 在荡阴帮助文档的时候就会显示为 <PATH> 了。
 接着重启 rust-analyzer.
 
-
-同类 crate：
-    clap -- Create your command-line parser, with all of the bells and whistles, declaratively or procedurally.
+同类 crate：  
+ [clap](https://crates.io/crates/aslip) -- Create your command-line parser, with all of the bells and whistles, declaratively or procedurally.

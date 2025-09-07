@@ -52,7 +52,7 @@ impl<'a> CmdInfo<'a> {
 
         //     re
         // };
-        format!(
+        return format!(
             r###"
 {about}
 
@@ -60,7 +60,7 @@ impl<'a> CmdInfo<'a> {
     {app_name} {name} {args}
 
             "###
-        )
+        );
     }
 
     pub const fn new(
@@ -84,12 +84,12 @@ impl<'a> CmdInfo<'a> {
         for x in self.args {
             if is_colection_type(x.1) {
                 re.push_str("[");
-                re.push_str(x.0);
+                re.push_str(&x.0.to_uppercase());
                 re.push_str("...");
                 re.push_str("] ");
             } else {
                 re.push_str("<");
-                re.push_str(x.0);
+                re.push_str(&x.0.to_uppercase());
 
                 re.push_str("> ");
             }

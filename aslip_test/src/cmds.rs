@@ -29,7 +29,7 @@ pub mod ok_case {
 
     /// 只有一个参数 的命令。
     ///
-    /// <green,bold>Usage</>: <cyan,bold>app</> <cyan,bold>one_arg</> <green,bold><<PATH>></>
+    /// <green,bold>Usage</>: <cyan,bold>app</> <cyan,bold>one_arg</> <cyan><<PATH>></>
     ///
     /// <green!>Args</>:
     ///     <<PATH>>:     the file path.
